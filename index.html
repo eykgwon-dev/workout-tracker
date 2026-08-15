@@ -121,7 +121,7 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
 </section>
 
 <section id="settings" class="hidden">
-  <div class="card"><h2 style="margin-top:0">Your Weekly Plan</h2><div class="small">Tuesday: Lower A · Thursday: Upper · Saturday: Swim · Sunday: Lower B</div></div>
+  <div class="card"><h2 style="margin-top:0">Your Weekly Plan</h2><div class="small">Tuesday: Lower A (Glutes) · Thursday: Upper · Saturday: Swim · Sunday: Lower B (Glutes + Hamstrings)</div></div>
   <div class="card">
     <h2 style="margin-top:0">Cloud Sync & Data</h2>
     <p class="note">New workouts are saved to Supabase and sync across devices when you sign in with the same account.</p>
@@ -192,10 +192,10 @@ const SUPABASE_KEY = "sb_publishable_NEs48nNX-ghTDPmxCr-iXw_i_iBVuZC";
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const PLAN = {
-  2:{name:"Lower Body A",focus:"Quads + Glutes",type:"strength",exercises:[["Leg Press",3,"8–12"],["Hip Thrust",4,"8–12"],["Bulgarian Split Squat",3,"8–10 each leg"],["Leg Extension",3,"10–15"],["Hip Abduction Machine",3,"15–20"],["Calf Raises",2,"12–15"]]},
+  2:{name:"Lower Body A",focus:"Glutes",type:"strength",exercises:[["Hip Thrust",4,"8–12"],["Romanian Deadlift",3,"8–12"],["Bulgarian Split Squat — Glute Bias",3,"8–10 each leg · long stride"],["Hip Abduction Machine",3,"15–20"],["Cable Glute Kickback",3,"12–15 each leg"],["Leg Curl",3,"10–15"]]},
   4:{name:"Upper Body",focus:"Back + Chest + Shoulders + Arms",type:"strength",exercises:[["Lat Pulldown",3,"8–12"],["Seated Cable Row",3,"8–12"],["Chest Press",3,"8–12"],["Shoulder Press",3,"8–12"],["Lateral Raises",3,"12–15"],["Triceps Pushdown",2,"10–15"],["Biceps Curl",2,"10–15"]]},
   6:{name:"Swimming",focus:"Technique + Cardio",type:"swim",exercises:[["Freestyle",10,"1 lap = 25 m"],["Breaststroke",10,"1 lap = 25 m"],["Backstroke",10,"1 lap = 25 m"],["Cool-down",4,"1 lap = 25 m"]]},
-  0:{name:"Lower Body B",focus:"Glutes + Hamstrings",type:"strength",exercises:[["Hip Thrust",4,"8–12"],["Romanian Deadlift",3,"8–12"],["Leg Curl",3,"10–15"],["Reverse Lunge / Step-Up",3,"8–10 each leg"],["Hip Abduction Machine",3,"15–20"],["Cable Glute Kickback",2,"12–15 each leg"]]}
+  0:{name:"Lower Body B",focus:"Glutes + Hamstrings",type:"strength",exercises:[["Hip Thrust / Glute Bridge",4,"8–12"],["Romanian Deadlift",3,"8–12"],["Leg Curl",3,"10–15"],["Reverse Lunge — Glute Bias",3,"8–10 each leg · long stride"],["Hip Abduction Machine",3,"15–20"],["Cable Glute Kickback",3,"12–15 each leg"]]}
 };
 const DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 let currentDay=new Date().getDay();

@@ -25,6 +25,24 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
 .meal-item:first-child{border-top:0}
 .goal-band{padding:12px;border-radius:14px;background:#f7f7f8;margin-top:10px}
 .big-number{font-size:30px;font-weight:800;line-height:1.1}
+.analytics-chart{margin-top:12px}
+.chart-row{display:grid;grid-template-columns:90px 1fr 48px;gap:9px;align-items:center;margin:9px 0}
+.chart-label{font-size:11px;color:var(--muted);text-align:right}
+.chart-track{height:16px;background:#ececef;border-radius:999px;overflow:hidden;position:relative}
+.chart-fill{height:100%;background:#111;border-radius:999px;min-width:2px}
+.chart-fill.soft{background:#777}
+.chart-value{font-size:11px;font-weight:700}
+.target-line{position:absolute;top:0;bottom:0;width:2px;background:#999}
+.mini-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;font-size:11px;color:var(--muted)}
+.legend-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#111;margin-right:4px}
+.line-chart-wrap{width:100%;overflow:hidden;margin-top:10px}
+.line-chart-svg{width:100%;height:auto;display:block}
+.axis-text{font-size:9px;fill:#777}
+.chart-grid-line{stroke:#e6e6e8;stroke-width:1}
+.chart-path{fill:none;stroke:#111;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.chart-point{fill:#111}
+.chart-target-band{fill:#f0f0f2}
+
 @media (min-width:600px){.kpi-grid{grid-template-columns:repeat(4,1fr)}}
 </style>
 </head>
@@ -187,8 +205,28 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
   </div>
 
   <div class="card">
-    <h2 style="margin-top:0">Insights & Failure Analysis</h2>
+    <div class="row between">
+      <div><h2 style="margin:0">Routine Diagnostics</h2><div class="small" style="margin-top:4px">Visualise where the routine is breaking down.</div></div>
+      <span class="badge">Last 28 days</span>
+    </div>
+    <div id="routineDiagnosticChart" class="analytics-chart"></div>
     <div id="insightsPanel"></div>
+  </div>
+
+  <div class="card">
+    <div class="row between">
+      <div><h2 style="margin:0">Calories — Last 7 Days</h2><div class="small" style="margin-top:4px">Daily intake vs your 1,600–1,700 kcal target band.</div></div>
+    </div>
+    <div id="calorieTrendChart" class="line-chart-wrap"></div>
+    <div id="calorieChartCommentary" class="note" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card">
+    <div class="row between">
+      <div><h2 style="margin:0">Protein — Last 7 Days</h2><div class="small" style="margin-top:4px">Daily protein vs your 100–115 g target.</div></div>
+    </div>
+    <div id="proteinTrendChart" class="line-chart-wrap"></div>
+    <div id="proteinChartCommentary" class="note" style="margin-top:10px"></div>
   </div>
 
   <div class="card">
@@ -650,6 +688,41 @@ function insightHtml(signal,title,text){
   const label=signal==="good"?"On track":signal==="bad"?"Priority gap":"Watch";
   return `<div class="insight"><span class="signal ${cls}">${label}</span><strong>${title}</strong><div class="small">${text}</div></div>`;
 }
+
+function renderDiagnosticBars(metrics){
+  const el=document.getElementById("routineDiagnosticChart");
+  el.innerHTML=metrics.map(m=>{
+    const pct=Math.max(0,Math.min(100,m.value));
+    return `<div class="chart-row">
+      <div class="chart-label">${escapeHTML(m.label)}</div>
+      <div class="chart-track"><div class="chart-fill ${m.soft?"soft":""}" style="width:${pct}%"></div></div>
+      <div class="chart-value">${Math.round(pct)}%</div>
+    </div>`;
+  }).join("")+`<div class="mini-legend"><span><span class="legend-dot"></span>Higher is better</span><span>Use the commentary below to diagnose the weakest metric.</span></div>`;
+}
+function renderSevenDayLineChart(elementId, daily, key, minTarget, maxTarget, yMax, suffix){
+  const el=document.getElementById(elementId);
+  const W=640,H=220,L=42,R=14,T=18,B=34,plotW=W-L-R,plotH=H-T-B;
+  const vals=daily.map(d=>d.rows.length?Number(d[key])||0:null);
+  const x=i=>L+(daily.length===1?plotW/2:i*plotW/(daily.length-1));
+  const y=v=>T+plotH-(Math.max(0,Math.min(yMax,v))/yMax)*plotH;
+  let grid="";
+  const ticks=[0,yMax*.25,yMax*.5,yMax*.75,yMax];
+  ticks.forEach(v=>{const yy=y(v);grid+=`<line class="chart-grid-line" x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}"></line><text class="axis-text" x="${L-6}" y="${yy+3}" text-anchor="end">${Math.round(v)}</text>`;});
+  const bandY=y(maxTarget),bandH=y(minTarget)-y(maxTarget);
+  let segments=[],current=[];
+  vals.forEach((v,i)=>{if(v==null){if(current.length)segments.push(current);current=[];}else current.push([x(i),y(v),v,i]);});
+  if(current.length)segments.push(current);
+  let paths=segments.map(seg=>seg.length===1?`<circle class="chart-point" cx="${seg[0][0]}" cy="${seg[0][1]}" r="4"></circle>`:`<path class="chart-path" d="${seg.map((p,j)=>(j?"L":"M")+p[0]+" "+p[1]).join(" ")}"></path>${seg.map(p=>`<circle class="chart-point" cx="${p[0]}" cy="${p[1]}" r="3.5"></circle>`).join("")}`).join("");
+  let labels=daily.map((d,i)=>`<text class="axis-text" x="${x(i)}" y="${H-10}" text-anchor="middle">${new Date(d.date+"T12:00:00").toLocaleDateString(undefined,{weekday:"short"})}</text>`).join("");
+  let values=vals.map((v,i)=>v==null?"":`<text class="axis-text" x="${x(i)}" y="${Math.max(11,y(v)-7)}" text-anchor="middle">${Math.round(v)}${suffix}</text>`).join("");
+  el.innerHTML=`<svg class="line-chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Seven day trend chart">
+    <rect class="chart-target-band" x="${L}" y="${bandY}" width="${plotW}" height="${bandH}"></rect>
+    ${grid}${paths}${labels}${values}
+  </svg>
+  <div class="mini-legend"><span>Shaded band = target ${minTarget}–${maxTarget}${suffix}</span><span>Blank day = no food logged</span></div>`;
+}
+
 function renderAnalysis(logs){
   const now=new Date(), cutoff28=daysAgo(27), cutoff7=localDateString(daysAgo(6));
   const recent=logs.filter(l=>new Date(l.date)>=cutoff28);
@@ -663,6 +736,25 @@ function renderAnalysis(logs){
   const proteinHit=loggedDays.filter(d=>d.protein>=PROTEIN_MIN).length;
   const avgCalories=loggedDays.length?Math.round(loggedDays.reduce((a,d)=>a+d.calories,0)/loggedDays.length):null;
   const avgProtein=loggedDays.length?Math.round(loggedDays.reduce((a,d)=>a+d.protein,0)/loggedDays.length):null;
+
+  const loggingRate=Math.round(loggedDays.length/7*100);
+  const calorieAdherence=loggedDays.length?Math.round(calHit/loggedDays.length*100):0;
+  const proteinAdherence=loggedDays.length?Math.round(proteinHit/loggedDays.length*100):0;
+  renderDiagnosticBars([
+    {label:"Workout adherence",value:adherence},
+    {label:"Workout completion",value:avgCompletion},
+    {label:"Food logging",value:loggingRate},
+    {label:"Calorie adherence",value:calorieAdherence},
+    {label:"Protein adherence",value:proteinAdherence}
+  ]);
+  renderSevenDayLineChart("calorieTrendChart",daily,"calories",CALORIE_MIN,CALORIE_MAX,2200,"");
+  renderSevenDayLineChart("proteinTrendChart",daily,"protein",PROTEIN_MIN,PROTEIN_MAX,140,"g");
+  document.getElementById("calorieChartCommentary").textContent=loggedDays.length
+    ? `${calHit}/${loggedDays.length} logged days were within 1,600–1,700 kcal. Average logged intake: ${avgCalories} kcal/day. ${loggedDays.length<7?"Because some days are missing, treat the average as incomplete rather than assuming those days were zero calories.":calHit>=5?"Calorie consistency looks strong this week.":"The chart should help show whether the issue is repeated overshooting, undershooting, or day-to-day volatility."}`
+    : "No nutrition data yet. Once you log food, this chart will show whether calorie consistency is a likely blocker.";
+  document.getElementById("proteinChartCommentary").textContent=loggedDays.length
+    ? `${proteinHit}/${loggedDays.length} logged days reached at least 100 g protein. Average: ${avgProtein} g/day. ${proteinHit>=5?"Protein consistency looks strong.":"Look for repeated low-protein days rather than focusing on one isolated day."}`
+    : "No protein data yet. Log protein with meals to see your weekly pattern.";
 
   document.getElementById("kpiSessions").textContent=sessions;
   document.getElementById("kpiAdherence").textContent=adherence+"%";
@@ -684,7 +776,6 @@ function renderAnalysis(logs){
     html:insightHtml(avgCompletion>=85?"good":avgCompletion>=70?"warn":"bad","Workout completion",
       recent.length?`When you train, you complete an average of ${avgCompletion}% of the planned sets/laps. ${avgCompletion>=85?"Execution is strong; consistency matters more than adding volume.":"The routine may be too long, too hard, or getting interrupted."}`:"No workouts logged in the last 28 days.")
   });
-  const loggingRate=Math.round(loggedDays.length/7*100);
   insights.push({
     score:100-loggingRate,
     html:insightHtml(loggingRate>=85?"good":loggingRate>=57?"warn":"bad","Nutrition data quality",

@@ -51,7 +51,7 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
 .home-hero .big{font-size:34px;font-weight:800;margin-top:4px}
 .home-hero .subline{font-size:12px;opacity:.75;margin-top:6px}
 .home-action{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-.home-action button{width:100%}
+.home-action button{width:100%}.dual-metric{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.dual-metric .box{background:#f7f7f8;border-radius:14px;padding:14px}.dual-metric .v{font-size:24px;font-weight:800}.dual-metric .l{font-size:11px;color:var(--muted);margin-top:3px}.scatter-wrap{width:100%;overflow:hidden;margin-top:12px}.scatter-svg{width:100%;height:auto;display:block}.scatter-point{fill:#111;opacity:.85}.scatter-line{stroke:#777;stroke-width:2;stroke-dasharray:5 5}
 @media(max-width:430px){.home-grid{grid-template-columns:1fr 1fr}.home-kpi .value{font-size:24px}}
 
 .axis-text{font-size:9px;fill:#777}
@@ -301,6 +301,19 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
       <div class="kpi"><div id="kpiProteinHit" class="n">—</div><div class="l">Days ≥100g protein</div></div>
     </div>
     <div class="note" style="margin-top:10px">Calorie/protein analysis only uses days with food logged. Very low totals may mean incomplete logging rather than true intake.</div>
+  </div>
+
+  <div class="card">
+    <div class="row between">
+      <div><h2 style="margin:0">Calories vs Weight Change</h2><div class="small" style="margin-top:4px">Test whether your actual calorie intake is producing weight loss.</div></div>
+      <span class="badge">28 days</span>
+    </div>
+    <div class="dual-metric">
+      <div class="box"><div id="avgCalories28" class="v">—</div><div class="l">Avg logged kcal/day</div></div>
+      <div class="box"><div id="weightChange28" class="v">—</div><div class="l">Weight change</div></div>
+    </div>
+    <div id="calorieWeightChart" class="scatter-wrap"></div>
+    <div id="calorieWeightCommentary" class="note" style="margin-top:10px"></div>
   </div>
 
   <div class="card"><div class="row between"><h2 style="margin:0">Workout Frequency</h2><span class="small">sessions / target 4</span></div><div id="weeklyChart" class="chart"></div></div>
@@ -862,6 +875,37 @@ function renderSevenDayLineChart(elementId, daily, key, minTarget, maxTarget, yM
   <div class="mini-legend"><span>Shaded band = target ${minTarget}–${maxTarget}${suffix}</span><span>Blank day = no food logged</span></div>`;
 }
 
+
+function renderCaloriesVsWeight(logs){
+  const cutoff=daysAgo(27), dailyMap={};
+  mealLogs.forEach(m=>{
+    if(new Date(m.date+"T12:00:00")<cutoff)return;
+    if(!dailyMap[m.date])dailyMap[m.date]={calories:0,count:0};
+    dailyMap[m.date].calories+=Number(m.calories)||0; dailyMap[m.date].count++;
+  });
+  const calorieDays=Object.entries(dailyMap).map(([date,v])=>({date,calories:v.calories})).sort((a,b)=>a.date.localeCompare(b.date));
+  const avgCal=calorieDays.length?Math.round(calorieDays.reduce((a,d)=>a+d.calories,0)/calorieDays.length):null;
+  const weights=logs.filter(l=>l.weight&&new Date(l.date)>=cutoff).map(l=>({date:localDateString(l.date),weight:Number(l.weight)})).sort((a,b)=>a.date.localeCompare(b.date));
+  const change=weights.length>=2?weights.at(-1).weight-weights[0].weight:null;
+  document.getElementById("avgCalories28").textContent=avgCal??"—";
+  document.getElementById("weightChange28").textContent=change==null?"—":`${change>0?"+":""}${change.toFixed(1)}kg`;
+  const el=document.getElementById("calorieWeightChart"), note=document.getElementById("calorieWeightCommentary");
+  if(calorieDays.length<5||weights.length<2){el.innerHTML='<div class="status">Not enough matched data yet.</div>';note.textContent="Log food on most days and record consistent morning weights for at least 2–3 weeks.";return;}
+  const points=[];
+  for(let i=1;i<weights.length;i++){
+    const cals=calorieDays.filter(d=>d.date>weights[i-1].date&&d.date<=weights[i].date);
+    if(cals.length)points.push({avg:Math.round(cals.reduce((a,d)=>a+d.calories,0)/cals.length),delta:weights[i].weight-weights[i-1].weight});
+  }
+  if(points.length<2){el.innerHTML='<div class="status">Keep logging — more matched intervals are needed.</div>';note.textContent="The chart needs at least two weigh-in intervals with food data between them.";return;}
+  const W=640,H=220,L=48,R=18,T=18,B=38,xmin=1200,xmax=2200,absY=Math.max(.5,Math.ceil(Math.max(...points.map(p=>Math.abs(p.delta)))*10)/10),ymin=-absY,ymax=absY;
+  const x=v=>L+(v-xmin)/(xmax-xmin)*(W-L-R), y=v=>T+(ymax-v)/(ymax-ymin)*(H-T-B);
+  let grid="";
+  [1200,1600,2000,2200].forEach(v=>{const xx=x(v);grid+=`<line class="chart-grid-line" x1="${xx}" y1="${T}" x2="${xx}" y2="${H-B}"></line><text class="axis-text" x="${xx}" y="${H-12}" text-anchor="middle">${v}</text>`});
+  [ymin,0,ymax].forEach(v=>{const yy=y(v);grid+=`<line class="chart-grid-line" x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}"></line><text class="axis-text" x="${L-7}" y="${yy+3}" text-anchor="end">${v.toFixed(1)}</text>`});
+  el.innerHTML=`<svg class="scatter-svg" viewBox="0 0 ${W} ${H}">${grid}<line class="scatter-line" x1="${x(CALORIE_TARGET)}" y1="${T}" x2="${x(CALORIE_TARGET)}" y2="${H-B}"></line>${points.map(p=>`<circle class="scatter-point" cx="${x(p.avg)}" cy="${y(p.delta)}" r="5"></circle>`).join("")}<text class="axis-text" x="${W/2}" y="${H-1}" text-anchor="middle">Avg calories/day between weigh-ins</text></svg><div class="mini-legend"><span>Each dot = one weigh-in interval</span><span>Dashed line = 1,650 kcal</span></div>`;
+  note.textContent=change<-.2?`Average logged intake is ${avgCal} kcal/day and weight is trending down ${Math.abs(change).toFixed(1)} kg. Keep the target stable for now.`:change<=.2?`Average logged intake is ${avgCal} kcal/day and weight is roughly flat. If this persists for 3–4 weeks with complete logging, reassess the target.`:`Average logged intake is ${avgCal} kcal/day while weight is up ${change.toFixed(1)} kg. Check logging completeness and morning weigh-in consistency before cutting calories.`;
+}
+
 function renderAnalysis(logs){
   const now=new Date(), cutoff28=daysAgo(27), cutoff7=localDateString(daysAgo(6));
   const recent=logs.filter(l=>new Date(l.date)>=cutoff28);
@@ -963,6 +1007,7 @@ function renderProgress(){
   populateExerciseSelect();
   renderStrengthProgress();
   renderAnalysis(logs);
+  renderCaloriesVsWeight(logs);
 }
 function renderWeeklyChart(weeks){const c=document.getElementById("weeklyChart");c.innerHTML="";const now=new Date(),arr=[];for(let i=7;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i*7);arr.push(weekKey(d));}arr.forEach(k=>{const n=Math.min(4,weeks[k]||0),h=Math.max(4,n/4*150),b=document.createElement("div");b.className="bar";b.style.height=h+"px";b.innerHTML=`<span>${k.slice(5)}</span>`;b.title=n+" sessions";c.appendChild(b);});}
 function populateExerciseSelect(){const names=[...new Set(Object.values(PLAN).flatMap(p=>p.type==="strength"?p.exercises.map(e=>e[0]):[]))],s=document.getElementById("progressExercise"),old=s.value;s.innerHTML=names.map(n=>`<option>${n}</option>`).join("");if(names.includes(old))s.value=old;}

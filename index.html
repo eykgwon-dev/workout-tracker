@@ -67,7 +67,46 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
   </div>
 </section>
 
-<section id="history" class="hidden"><div class="card"><h2 style="margin-top:0">Workout History</h2><div id="historyList"></div></div></section>
+<section id="history" class="hidden">
+  <div class="card">
+    <div class="row between">
+      <h2 style="margin:0">Workout History</h2>
+      <button class="secondary" onclick="togglePastWorkoutForm()">+ Add Past Workout</button>
+    </div>
+    <div id="pastWorkoutForm" class="hidden" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--line)">
+      <div class="grid2">
+        <div><label>Date</label><input id="pastDate" type="date"></div>
+        <div><label>Workout</label>
+          <select id="pastWorkout" onchange="updatePastWorkoutDefaults()">
+            <option value="2">Lower Body A</option>
+            <option value="4">Upper Body</option>
+            <option value="6">Swimming</option>
+            <option value="0">Lower Body B</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid2" style="margin-top:10px">
+        <div><label id="pastDoneLabel">Sets / laps completed</label><input id="pastDone" type="number" min="0"></div>
+        <div><label id="pastPlannedLabel">Sets / laps planned</label><input id="pastPlanned" type="number" min="1"></div>
+      </div>
+      <div id="pastDistanceWrap" class="hidden" style="margin-top:10px">
+        <label>Swimming distance</label>
+        <div id="pastDistance" class="status">0 laps = 0 m</div>
+      </div>
+      <div class="grid2" style="margin-top:10px">
+        <div><label>Workout effort (1–10, optional)</label><input id="pastEffort" type="number" min="1" max="10"></div>
+        <div><label>Body weight (optional, kg)</label><input id="pastWeight" type="number" step="0.1"></div>
+      </div>
+      <div style="margin-top:10px"><label>Notes</label><textarea id="pastNotes" placeholder="Anything you remember about this workout..."></textarea></div>
+      <div class="row wrap" style="margin-top:12px">
+        <button id="savePastBtn" onclick="savePastWorkout()">Save Past Workout</button>
+        <button class="secondary" onclick="togglePastWorkoutForm(false)">Cancel</button>
+      </div>
+      <div id="pastMessage" class="status hidden"></div>
+    </div>
+  </div>
+  <div class="card"><div id="historyList"></div></div>
+</section>
 
 <section id="progress" class="hidden">
   <div class="card"><h2 style="margin-top:0">Consistency</h2><div class="kpi-grid">
@@ -203,6 +242,79 @@ async function finishWorkout(){
   if(error){alert("Could not save workout: "+error.message);return;}
   document.getElementById("effort").value="";document.getElementById("weight").value="";document.getElementById("notes").value="";
   await loadCloudLogs();renderToday();alert("Workout saved to cloud ✓");
+}
+
+
+function togglePastWorkoutForm(force){
+  const form=document.getElementById("pastWorkoutForm");
+  const shouldShow=typeof force==="boolean"?force:form.classList.contains("hidden");
+  form.classList.toggle("hidden",!shouldShow);
+  if(shouldShow){
+    if(!document.getElementById("pastDate").value){
+      const d=new Date(); d.setDate(d.getDate()-1);
+      document.getElementById("pastDate").value=d.toISOString().slice(0,10);
+    }
+    updatePastWorkoutDefaults();
+  }
+}
+function updatePastWorkoutDefaults(){
+  const day=Number(document.getElementById("pastWorkout").value);
+  const p=PLAN[day];
+  const total=p.exercises.reduce((a,e)=>a+e[1],0);
+  const done=document.getElementById("pastDone");
+  const planned=document.getElementById("pastPlanned");
+  if(!planned.value || planned.dataset.forDay!==String(day)){
+    planned.value=total; planned.dataset.forDay=String(day);
+  }
+  if(!done.value || done.dataset.forDay!==String(day)){
+    done.value=total; done.dataset.forDay=String(day);
+  }
+  const swim=p.type==="swim";
+  document.getElementById("pastDistanceWrap").classList.toggle("hidden",!swim);
+  document.getElementById("pastDoneLabel").textContent=swim?"Laps completed":"Sets completed";
+  document.getElementById("pastPlannedLabel").textContent=swim?"Laps planned":"Sets planned";
+  updatePastDistance();
+}
+function updatePastDistance(){
+  const day=Number(document.getElementById("pastWorkout").value);
+  if(PLAN[day].type!=="swim")return;
+  const laps=Number(document.getElementById("pastDone").value)||0;
+  document.getElementById("pastDistance").textContent=`${laps} laps = ${laps*25} m`;
+}
+document.addEventListener("input",e=>{if(e.target && e.target.id==="pastDone")updatePastDistance();});
+
+async function savePastWorkout(){
+  if(!currentUser){alert("Please sign in first.");return;}
+  const date=document.getElementById("pastDate").value;
+  const day=Number(document.getElementById("pastWorkout").value);
+  const p=PLAN[day];
+  const done=Number(document.getElementById("pastDone").value);
+  const planned=Number(document.getElementById("pastPlanned").value);
+  if(!date){setMessage("pastMessage","Choose the workout date.","error");document.getElementById("pastMessage").classList.remove("hidden");return;}
+  if(!Number.isFinite(done)||done<0||!Number.isFinite(planned)||planned<1){
+    setMessage("pastMessage","Enter valid completed and planned amounts.","error");document.getElementById("pastMessage").classList.remove("hidden");return;
+  }
+  const localNoon=new Date(date+"T12:00:00");
+  let notes=document.getElementById("pastNotes").value.trim();
+  if(p.type==="swim" && !notes.toLowerCase().includes("distance")){
+    notes=(notes?notes+" · ":"")+`Distance ${done*25}m (${done} laps)`;
+  }
+  const log={
+    id:Date.now(), date:localNoon.toISOString(), scheduledDay:day, workout:p.name, focus:p.focus,
+    setsDone:done, setsPlanned:planned, completion:Math.min(100,Math.round(done/planned*100)),
+    effort:document.getElementById("pastEffort").value||null,
+    weight:document.getElementById("pastWeight").value||null,
+    notes
+  };
+  const btn=document.getElementById("savePastBtn");btn.disabled=true;btn.textContent="Saving…";
+  const {error}=await db.from("workout_logs").insert(appToDb(log));
+  btn.disabled=false;btn.textContent="Save Past Workout";
+  document.getElementById("pastMessage").classList.remove("hidden");
+  if(error){setMessage("pastMessage","Could not save: "+error.message,"error");return;}
+  await loadCloudLogs();
+  setMessage("pastMessage","Past workout saved to cloud ✓","goodstatus");
+  ["pastEffort","pastWeight","pastNotes"].forEach(id=>document.getElementById(id).value="");
+  setTimeout(()=>togglePastWorkoutForm(false),700);
 }
 
 function showTab(id,el){["today","history","progress","settings"].forEach(x=>document.getElementById(x).classList.add("hidden"));document.getElementById(id).classList.remove("hidden");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));el.classList.add("active");if(id==="history")renderHistory();if(id==="progress")renderProgress();}

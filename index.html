@@ -8,91 +8,39 @@
 <meta name="theme-color" content="#111111" />
 <title>Workout Tracker</title>
 <style>
-:root{
-  --bg:#f6f6f7; --card:#fff; --text:#141414; --muted:#6f7177; --line:#e7e7ea;
-  --accent:#111; --soft:#efeff1; --good:#18864b; --warn:#b66b00;
-}
+:root{--bg:#f6f6f7;--card:#fff;--text:#141414;--muted:#6f7177;--line:#e7e7ea;--accent:#111;--soft:#efeff1;--good:#18864b;--warn:#b66b00;--bad:#b42318}
 *{box-sizing:border-box}
-body{
-  margin:0; font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;
-  background:var(--bg); color:var(--text); padding-bottom:90px;
-}
-header{
-  padding:calc(env(safe-area-inset-top) + 18px) 18px 14px;
-  background:rgba(246,246,247,.94); position:sticky; top:0; z-index:10;
-  backdrop-filter:blur(14px); border-bottom:1px solid var(--line);
-}
-h1{font-size:25px; margin:0 0 4px}
-.sub{color:var(--muted); font-size:13px}
-main{padding:16px; max-width:760px; margin:auto}
-.card{
-  background:var(--card); border-radius:18px; padding:16px; margin-bottom:14px;
-  box-shadow:0 1px 3px rgba(0,0,0,.04); border:1px solid #eee;
-}
-.row{display:flex; gap:10px; align-items:center}
-.between{justify-content:space-between}
-button, select, input{
-  font:inherit;
-}
-button{
-  border:0; border-radius:12px; padding:11px 14px; background:var(--accent); color:white; font-weight:650;
-}
-button.secondary{background:var(--soft); color:var(--text)}
-button.ghost{background:transparent;color:var(--text);padding:6px 8px}
-.tabs{
-  position:fixed; left:0; right:0; bottom:0; background:rgba(255,255,255,.96);
-  border-top:1px solid var(--line); display:flex; padding:8px 10px calc(8px + env(safe-area-inset-bottom));
-  backdrop-filter:blur(15px); z-index:20;
-}
-.tab{flex:1; text-align:center; color:var(--muted); font-size:12px; padding:7px 2px; border-radius:12px}
-.tab.active{color:#000; background:#f0f0f2; font-weight:700}
-.hidden{display:none}
-.day-pill{
-  display:inline-flex;padding:7px 10px;border-radius:999px;background:#f0f0f2;font-size:12px;font-weight:700;
-}
-.exercise{padding:14px 0;border-top:1px solid var(--line)}
-.exercise:first-child{border-top:0}
-.exercise h3{margin:0 0 10px;font-size:16px}
-.meta{font-size:12px;color:var(--muted);margin-top:3px}
-.sets{display:flex;flex-wrap:wrap;gap:8px}
-.set{
-  min-width:54px;height:44px;border-radius:12px;background:#f1f1f3;border:1px solid #e7e7e9;
-  display:flex;align-items:center;justify-content:center;font-weight:700;color:#333;user-select:none;
-}
-.set.done{background:#111;color:#fff;border-color:#111}
-.progressbar{height:10px;background:#ececef;border-radius:999px;overflow:hidden}
-.progressbar>div{height:100%;background:#111;width:0}
-.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.kpi{background:#f7f7f8;border-radius:14px;padding:14px}
-.kpi .n{font-size:24px;font-weight:800}
-.kpi .l{font-size:12px;color:var(--muted)}
-label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
-input,select{width:100%;padding:11px 12px;border:1px solid #ddd;border-radius:12px;background:#fff}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.log-item{padding:12px 0;border-top:1px solid var(--line)}
-.log-item:first-child{border-top:0}
-.badge{font-size:11px;padding:5px 8px;border-radius:999px;background:#f1f1f3}
-.good{color:var(--good);font-weight:700}
-.small{font-size:12px;color:var(--muted)}
-.chart{
-  height:180px;display:flex;align-items:flex-end;gap:7px;padding-top:12px;border-bottom:1px solid var(--line);
-}
-.bar{flex:1;min-width:9px;background:#111;border-radius:7px 7px 0 0;position:relative}
-.bar span{
-  position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted)
-}
-.note{font-size:12px;color:var(--muted);line-height:1.45}
-textarea{width:100%;min-height:75px;border:1px solid #ddd;border-radius:12px;padding:10px;font:inherit}
-@media (min-width:600px){.kpi-grid{grid-template-columns:repeat(4,1fr)}}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;background:var(--bg);color:var(--text);padding-bottom:90px}
+header{padding:calc(env(safe-area-inset-top) + 18px) 18px 14px;background:rgba(246,246,247,.94);position:sticky;top:0;z-index:10;backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{padding:16px;max-width:760px;margin:auto}.card{background:var(--card);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04);border:1px solid #eee}.row{display:flex;gap:10px;align-items:center}.between{justify-content:space-between}.wrap{flex-wrap:wrap}button,select,input{font:inherit}button{border:0;border-radius:12px;padding:11px 14px;background:var(--accent);color:white;font-weight:650;cursor:pointer}button.secondary{background:var(--soft);color:var(--text)}button.danger{background:#fff1f0;color:var(--bad)}button:disabled{opacity:.5;cursor:default}.tabs{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);border-top:1px solid var(--line);display:flex;padding:8px 10px calc(8px + env(safe-area-inset-bottom));backdrop-filter:blur(15px);z-index:20}.tab{flex:1;text-align:center;color:var(--muted);font-size:12px;padding:7px 2px;border-radius:12px}.tab.active{color:#000;background:#f0f0f2;font-weight:700}.hidden{display:none!important}.day-pill{display:inline-flex;padding:7px 10px;border-radius:999px;background:#f0f0f2;font-size:12px;font-weight:700}.exercise{padding:14px 0;border-top:1px solid var(--line)}.exercise:first-child{border-top:0}.exercise h3{margin:0 0 10px;font-size:16px}.meta{font-size:12px;color:var(--muted);margin-top:3px}.sets{display:flex;flex-wrap:wrap;gap:8px}.set{min-width:54px;height:44px;border-radius:12px;background:#f1f1f3;border:1px solid #e7e7e9;display:flex;align-items:center;justify-content:center;font-weight:700;color:#333;user-select:none;cursor:pointer}.set.done{background:#111;color:#fff;border-color:#111}.progressbar{height:10px;background:#ececef;border-radius:999px;overflow:hidden}.progressbar>div{height:100%;background:#111;width:0}.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.kpi{background:#f7f7f8;border-radius:14px;padding:14px}.kpi .n{font-size:24px;font-weight:800}.kpi .l{font-size:12px;color:var(--muted)}label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}input,select{width:100%;padding:11px 12px;border:1px solid #ddd;border-radius:12px;background:#fff}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.log-item{padding:12px 0;border-top:1px solid var(--line)}.log-item:first-child{border-top:0}.badge{font-size:11px;padding:5px 8px;border-radius:999px;background:#f1f1f3}.good{color:var(--good);font-weight:700}.small{font-size:12px;color:var(--muted)}.chart{height:180px;display:flex;align-items:flex-end;gap:7px;padding-top:12px;border-bottom:1px solid var(--line)}.bar{flex:1;min-width:9px;background:#111;border-radius:7px 7px 0 0;position:relative}.bar span{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted)}.note{font-size:12px;color:var(--muted);line-height:1.45}textarea{width:100%;min-height:75px;border:1px solid #ddd;border-radius:12px;padding:10px;font:inherit}.auth-shell{max-width:480px;margin:28px auto;padding:16px}.status{padding:10px 12px;border-radius:12px;background:#f7f7f8;font-size:12px;color:var(--muted);margin-top:10px}.status.error{background:#fff1f0;color:var(--bad)}.status.goodstatus{background:#edf7f0;color:var(--good)}.sync-pill{font-size:11px;padding:5px 8px;border-radius:999px;background:#edf7f0;color:var(--good);font-weight:700}.top-status{margin-top:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}@media (min-width:600px){.kpi-grid{grid-template-columns:repeat(4,1fr)}}
 </style>
 </head>
 <body>
 <header>
   <h1>Workout Tracker</h1>
   <div class="sub">Train consistently. Tick every set. Watch the trend.</div>
+  <div id="cloudStatus" class="top-status hidden"><span class="sync-pill">☁ Cloud sync on</span><span id="signedInAs" class="small"></span></div>
 </header>
 
-<main>
+<div id="authView" class="auth-shell">
+  <div class="card">
+    <h2 style="margin-top:0">Sign in to sync your workouts</h2>
+    <p class="note">Use the same account on your phone, PC or tablet and your workout history will stay in sync.</p>
+    <label>Email</label>
+    <input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" />
+    <div style="margin-top:10px">
+      <label>Password</label>
+      <input id="authPassword" type="password" autocomplete="current-password" placeholder="At least 6 characters" />
+    </div>
+    <div class="row wrap" style="margin-top:12px">
+      <button id="signInBtn" onclick="signIn()">Sign In</button>
+      <button id="signUpBtn" class="secondary" onclick="signUp()">Create Account</button>
+    </div>
+    <div id="authMessage" class="status">Your workout data is private to your signed-in account.</div>
+  </div>
+</div>
+
+<main id="appView" class="hidden">
 <section id="today">
   <div class="card">
     <div class="row between">
@@ -111,253 +59,179 @@ textarea{width:100%;min-height:75px;border:1px solid #ddd;border-radius:12px;pad
   <div id="exerciseList" class="card"></div>
   <div class="card">
     <div class="grid2">
-      <div>
-        <label>Workout effort (1–10)</label>
-        <input id="effort" type="number" min="1" max="10" placeholder="e.g. 7"/>
-      </div>
-      <div>
-        <label>Body weight (optional, kg)</label>
-        <input id="weight" type="number" step="0.1" placeholder="e.g. 64.8"/>
-      </div>
+      <div><label>Workout effort (1–10)</label><input id="effort" type="number" min="1" max="10" placeholder="e.g. 7"/></div>
+      <div><label>Body weight (optional, kg)</label><input id="weight" type="number" step="0.1" placeholder="e.g. 64.8"/></div>
     </div>
-    <div style="margin-top:10px">
-      <label>Notes</label>
-      <textarea id="notes" placeholder="Weights used, energy, anything you want to remember..."></textarea>
-    </div>
-    <button style="width:100%;margin-top:12px" onclick="finishWorkout()">Finish & Save Workout</button>
+    <div style="margin-top:10px"><label>Notes</label><textarea id="notes" placeholder="Weights used, energy, anything you want to remember..."></textarea></div>
+    <button id="saveWorkoutBtn" style="width:100%;margin-top:12px" onclick="finishWorkout()">Finish & Save Workout</button>
   </div>
 </section>
 
-<section id="history" class="hidden">
-  <div class="card">
-    <h2 style="margin-top:0">Workout History</h2>
-    <div id="historyList"></div>
-  </div>
-</section>
+<section id="history" class="hidden"><div class="card"><h2 style="margin-top:0">Workout History</h2><div id="historyList"></div></div></section>
 
 <section id="progress" class="hidden">
-  <div class="card">
-    <h2 style="margin-top:0">Consistency</h2>
-    <div class="kpi-grid">
-      <div class="kpi"><div id="kpiSessions" class="n">0</div><div class="l">Completed sessions</div></div>
-      <div class="kpi"><div id="kpiAdherence" class="n">0%</div><div class="l">4-workout weekly adherence</div></div>
-      <div class="kpi"><div id="kpiSets" class="n">0</div><div class="l">Sets completed</div></div>
-      <div class="kpi"><div id="kpiStreak" class="n">0</div><div class="l">Active weeks</div></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="row between"><h2 style="margin:0">Last 8 Weeks</h2><span class="small">sessions / 4</span></div>
-    <div id="weeklyChart" class="chart"></div>
-  </div>
-
-  <div class="card">
-    <h2 style="margin-top:0">Strength Progress</h2>
-    <div class="small" style="margin-bottom:10px">Track a key exercise over time by saving the weight you used in Notes like “Hip thrust 60kg”.</div>
-    <label>Exercise</label>
-    <select id="progressExercise" onchange="renderStrengthProgress()"></select>
-    <div id="strengthProgress" style="margin-top:14px"></div>
-  </div>
-
-  <div class="card">
-    <h2 style="margin-top:0">Weight Trend</h2>
-    <div id="weightTrend" class="small">Add optional body weight when saving workouts to see your trend here.</div>
-  </div>
+  <div class="card"><h2 style="margin-top:0">Consistency</h2><div class="kpi-grid">
+    <div class="kpi"><div id="kpiSessions" class="n">0</div><div class="l">Completed sessions</div></div>
+    <div class="kpi"><div id="kpiAdherence" class="n">0%</div><div class="l">4-workout weekly adherence</div></div>
+    <div class="kpi"><div id="kpiSets" class="n">0</div><div class="l">Sets / laps completed</div></div>
+    <div class="kpi"><div id="kpiStreak" class="n">0</div><div class="l">Active weeks</div></div>
+  </div></div>
+  <div class="card"><div class="row between"><h2 style="margin:0">Last 8 Weeks</h2><span class="small">sessions / 4</span></div><div id="weeklyChart" class="chart"></div></div>
+  <div class="card"><h2 style="margin-top:0">Strength Progress</h2><div class="small" style="margin-bottom:10px">Track a key exercise by saving the weight in Notes, for example “Hip thrust 60kg”.</div><label>Exercise</label><select id="progressExercise" onchange="renderStrengthProgress()"></select><div id="strengthProgress" style="margin-top:14px"></div></div>
+  <div class="card"><h2 style="margin-top:0">Weight Trend</h2><div id="weightTrend" class="small">Add optional body weight when saving workouts to see your trend here.</div></div>
 </section>
 
 <section id="settings" class="hidden">
+  <div class="card"><h2 style="margin-top:0">Your Weekly Plan</h2><div class="small">Tuesday: Lower A · Thursday: Upper · Saturday: Swim · Sunday: Lower B</div></div>
   <div class="card">
-    <h2 style="margin-top:0">Your Weekly Plan</h2>
-    <div class="small">Tuesday: Lower A · Thursday: Upper · Saturday: Swim · Sunday: Lower B</div>
-  </div>
-  <div class="card">
-    <h2 style="margin-top:0">Backup & Data</h2>
-    <p class="note">Your data is stored locally in Safari on this device. Export a backup occasionally if you care about long-term history.</p>
-    <div class="row">
-      <button onclick="exportData()">Export Backup</button>
-      <button class="secondary" onclick="document.getElementById('importFile').click()">Import</button>
+    <h2 style="margin-top:0">Cloud Sync & Data</h2>
+    <p class="note">New workouts are saved to Supabase and sync across devices when you sign in with the same account.</p>
+    <div class="row wrap">
+      <button id="migrateBtn" onclick="migrateLocalWorkouts()">Move Existing Local Workouts to Cloud</button>
+      <button class="secondary" onclick="exportData()">Export Cloud Backup</button>
+      <button class="secondary" onclick="document.getElementById('importFile').click()">Import Backup to Cloud</button>
       <input id="importFile" class="hidden" type="file" accept=".json" onchange="importData(event)">
     </div>
+    <div id="dataMessage" class="status">If you logged workouts on this device before cloud sync, use the migration button once.</div>
   </div>
-  <div class="card">
-    <h2 style="margin-top:0">Add to iPhone Home Screen</h2>
-    <p class="note">Open this app in Safari → tap the Share button → <strong>Add to Home Screen</strong>. It will then launch like a simple app.</p>
-  </div>
+  <div class="card"><h2 style="margin-top:0">Account</h2><div id="accountEmail" class="small" style="margin-bottom:10px"></div><button class="danger" onclick="signOut()">Sign Out</button></div>
+  <div class="card"><h2 style="margin-top:0">Add to iPhone Home Screen</h2><p class="note">Open this app in Safari → tap Share → <strong>Add to Home Screen</strong>.</p></div>
 </section>
 </main>
 
-<nav class="tabs">
+<nav id="tabs" class="tabs hidden">
   <div class="tab active" onclick="showTab('today',this)">✓<br>Today</div>
   <div class="tab" onclick="showTab('history',this)">◷<br>History</div>
   <div class="tab" onclick="showTab('progress',this)">↗<br>Progress</div>
   <div class="tab" onclick="showTab('settings',this)">⚙<br>Settings</div>
 </nav>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const SUPABASE_URL = "https://qemrmafyxherfmyyjrtg.supabase.co";
+const SUPABASE_KEY = "sb_publishable_NEs48nNX-ghTDPmxCr-iXw_i_iBVuZC";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 const PLAN = {
-  2: {name:"Lower Body A", focus:"Quads + Glutes", type:"strength", exercises:[
-    ["Leg Press",3,"8–12"],["Hip Thrust",4,"8–12"],["Bulgarian Split Squat",3,"8–10 each leg"],
-    ["Leg Extension",3,"10–15"],["Hip Abduction Machine",3,"15–20"],["Calf Raises",2,"12–15"]
-  ]},
-  4: {name:"Upper Body", focus:"Back + Chest + Shoulders + Arms", type:"strength", exercises:[
-    ["Lat Pulldown",3,"8–12"],["Seated Cable Row",3,"8–12"],["Chest Press",3,"8–12"],
-    ["Shoulder Press",3,"8–12"],["Lateral Raises",3,"12–15"],["Triceps Pushdown",2,"10–15"],["Biceps Curl",2,"10–15"]
-  ]},
-  6: {name:"Swimming", focus:"Technique + Cardio", type:"swim", exercises:[
-    ["Freestyle",10,"1 lap = 25 m"],["Breaststroke",10,"1 lap = 25 m"],["Backstroke",10,"1 lap = 25 m"],["Cool-down",4,"1 lap = 25 m"]
-  ]},
-  0: {name:"Lower Body B", focus:"Glutes + Hamstrings", type:"strength", exercises:[
-    ["Hip Thrust",4,"8–12"],["Romanian Deadlift",3,"8–12"],["Leg Curl",3,"10–15"],
-    ["Reverse Lunge / Step-Up",3,"8–10 each leg"],["Hip Abduction Machine",3,"15–20"],["Cable Glute Kickback",2,"12–15 each leg"]
-  ]}
+  2:{name:"Lower Body A",focus:"Quads + Glutes",type:"strength",exercises:[["Leg Press",3,"8–12"],["Hip Thrust",4,"8–12"],["Bulgarian Split Squat",3,"8–10 each leg"],["Leg Extension",3,"10–15"],["Hip Abduction Machine",3,"15–20"],["Calf Raises",2,"12–15"]]},
+  4:{name:"Upper Body",focus:"Back + Chest + Shoulders + Arms",type:"strength",exercises:[["Lat Pulldown",3,"8–12"],["Seated Cable Row",3,"8–12"],["Chest Press",3,"8–12"],["Shoulder Press",3,"8–12"],["Lateral Raises",3,"12–15"],["Triceps Pushdown",2,"10–15"],["Biceps Curl",2,"10–15"]]},
+  6:{name:"Swimming",focus:"Technique + Cardio",type:"swim",exercises:[["Freestyle",10,"1 lap = 25 m"],["Breaststroke",10,"1 lap = 25 m"],["Backstroke",10,"1 lap = 25 m"],["Cool-down",4,"1 lap = 25 m"]]},
+  0:{name:"Lower Body B",focus:"Glutes + Hamstrings",type:"strength",exercises:[["Hip Thrust",4,"8–12"],["Romanian Deadlift",3,"8–12"],["Leg Curl",3,"10–15"],["Reverse Lunge / Step-Up",3,"8–10 each leg"],["Hip Abduction Machine",3,"15–20"],["Cable Glute Kickback",2,"12–15 each leg"]]}
 };
+const DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+let currentDay=new Date().getDay();
+let activeWorkoutDay=PLAN[currentDay]?currentDay:nextWorkoutDay();
+let checked={};
+let currentUser=null;
+let cloudLogs=[];
 
-const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-let currentDay = new Date().getDay();
-let activeWorkoutDay = PLAN[currentDay] ? currentDay : nextWorkoutDay();
-let checked = {};
+function nextWorkoutDay(){for(let i=1;i<=7;i++){const d=(currentDay+i)%7;if(PLAN[d])return d;}}
+function storage(){return cloudLogs;}
+function localStorageLogs(){try{return JSON.parse(localStorage.getItem("workoutLogs")||"[]");}catch(e){return [];}}
+function setMessage(id,text,type=""){const el=document.getElementById(id);el.textContent=text;el.className="status"+(type?" "+type:"");}
+function setAuthBusy(busy){document.getElementById("signInBtn").disabled=busy;document.getElementById("signUpBtn").disabled=busy;}
 
-function nextWorkoutDay(){
-  for(let i=1;i<=7;i++){ let d=(currentDay+i)%7; if(PLAN[d]) return d; }
+function dbToApp(r){return {id:Number(r.id),date:r.date,scheduledDay:r.scheduled_day,workout:r.workout,focus:r.focus,setsDone:r.sets_done,setsPlanned:r.sets_planned,completion:r.completion,effort:r.effort,weight:r.weight,notes:r.notes||""};}
+function appToDb(l){return {id:Number(l.id)||Date.now(),user_id:currentUser.id,date:l.date||new Date().toISOString(),scheduled_day:l.scheduledDay??l.scheduled_day??null,workout:l.workout||"Workout",focus:l.focus||null,sets_done:Number(l.setsDone??l.sets_done??0),sets_planned:Number(l.setsPlanned??l.sets_planned??0),completion:Number(l.completion??0),effort:(l.effort===""||l.effort==null)?null:Number(l.effort),weight:(l.weight===""||l.weight==null)?null:Number(l.weight),notes:l.notes||""};}
+
+async function loadCloudLogs(){
+  const {data,error}=await db.from("workout_logs").select("*").order("date",{ascending:true});
+  if(error)throw error;
+  cloudLogs=(data||[]).map(dbToApp);
+  renderHistory();renderProgress();
 }
-function storage(){ return JSON.parse(localStorage.getItem("workoutLogs")||"[]"); }
-function saveStorage(x){ localStorage.setItem("workoutLogs",JSON.stringify(x)); }
+
+async function signIn(){
+  const email=document.getElementById("authEmail").value.trim();const password=document.getElementById("authPassword").value;
+  if(!email||!password){setMessage("authMessage","Enter your email and password.","error");return;}
+  setAuthBusy(true);setMessage("authMessage","Signing in…");
+  const {error}=await db.auth.signInWithPassword({email,password});
+  setAuthBusy(false);
+  if(error){setMessage("authMessage",error.message,"error");return;}
+  setMessage("authMessage","Signed in.","goodstatus");
+}
+
+async function signUp(){
+  const email=document.getElementById("authEmail").value.trim();const password=document.getElementById("authPassword").value;
+  if(!email||password.length<6){setMessage("authMessage","Enter a valid email and a password with at least 6 characters.","error");return;}
+  setAuthBusy(true);setMessage("authMessage","Creating account…");
+  const redirectTo=window.location.origin+window.location.pathname;
+  const {data,error}=await db.auth.signUp({email,password,options:{emailRedirectTo:redirectTo}});
+  setAuthBusy(false);
+  if(error){setMessage("authMessage",error.message,"error");return;}
+  if(data.session){setMessage("authMessage","Account created and signed in.","goodstatus");}
+  else{setMessage("authMessage","Account created. Check your email and click the confirmation link, then return here and sign in.","goodstatus");}
+}
+
+async function signOut(){await db.auth.signOut();}
+
+async function handleSession(session){
+  currentUser=session?.user||null;
+  const signedIn=!!currentUser;
+  document.getElementById("authView").classList.toggle("hidden",signedIn);
+  document.getElementById("appView").classList.toggle("hidden",!signedIn);
+  document.getElementById("tabs").classList.toggle("hidden",!signedIn);
+  document.getElementById("cloudStatus").classList.toggle("hidden",!signedIn);
+  if(!signedIn){cloudLogs=[];return;}
+  document.getElementById("signedInAs").textContent=currentUser.email||"Signed in";
+  document.getElementById("accountEmail").textContent="Signed in as "+(currentUser.email||"");
+  renderToday();
+  try{await loadCloudLogs();}catch(e){alert("Could not load cloud workouts: "+e.message);}
+}
 
 function renderToday(){
   const p=PLAN[activeWorkoutDay];
-  document.getElementById("todayDay").textContent = DAYS[activeWorkoutDay];
-  document.getElementById("todayTitle").textContent = p.name;
-  document.getElementById("todaySubtitle").textContent = (currentDay===activeWorkoutDay?"Today":"Next scheduled workout") + " · " + p.focus + (p.type==="swim" ? " · 34 laps / 850 m" : "");
-  checked={};
-  let html="";
-  p.exercises.forEach((e,i)=>{
-    html += `<div class="exercise"><h3>${e[0]}</h3><div class="meta">${e[1]} sets · ${e[2]}</div><div class="sets" style="margin-top:10px">`;
-    for(let s=1;s<=e[1];s++) {
-      const label = p.type==="swim" ? `L${s}` : `S${s}`;
-      html += `<div class="set" id="set-${i}-${s}" onclick="toggleSet(${i},${s})">${label}</div>`;
-    }
-    html += `</div></div>`;
-  });
-  document.getElementById("exerciseList").innerHTML=html;
-  updateCompletion();
+  document.getElementById("todayDay").textContent=DAYS[activeWorkoutDay];
+  document.getElementById("todayTitle").textContent=p.name;
+  document.getElementById("todaySubtitle").textContent=(currentDay===activeWorkoutDay?"Today":"Next scheduled workout")+" · "+p.focus+(p.type==="swim"?" · 34 laps / 850 m":"");
+  checked={};let html="";
+  p.exercises.forEach((e,i)=>{const unit=p.type==="swim"?"laps":"sets";html+=`<div class="exercise"><h3>${e[0]}</h3><div class="meta">${e[1]} ${unit} · ${e[2]}</div><div class="sets" style="margin-top:10px">`;for(let s=1;s<=e[1];s++){const label=p.type==="swim"?`L${s}`:`S${s}`;html+=`<div class="set" id="set-${i}-${s}" onclick="toggleSet(${i},${s})">${label}</div>`;}html+="</div></div>";});
+  document.getElementById("exerciseList").innerHTML=html;updateCompletion();
 }
-function toggleSet(i,s){
-  let key=i+"-"+s; checked[key]=!checked[key];
-  document.getElementById("set-"+i+"-"+s).classList.toggle("done",checked[key]);
-  updateCompletion();
-}
-function updateCompletion(){
-  const p=PLAN[activeWorkoutDay], total=p.exercises.reduce((a,e)=>a+e[1],0);
-  const done=Object.values(checked).filter(Boolean).length;
-  const pct=Math.round(done/total*100);
-  document.getElementById("completionText").textContent=pct+"%";
-  document.getElementById("completionBar").style.width=pct+"%";
-}
-function resetToday(){ if(confirm("Clear today's set checkmarks?")) renderToday(); }
+function toggleSet(i,s){const key=i+"-"+s;checked[key]=!checked[key];document.getElementById("set-"+i+"-"+s).classList.toggle("done",checked[key]);updateCompletion();}
+function updateCompletion(){const p=PLAN[activeWorkoutDay],total=p.exercises.reduce((a,e)=>a+e[1],0),done=Object.values(checked).filter(Boolean).length,pct=Math.round(done/total*100);document.getElementById("completionText").textContent=pct+"%";document.getElementById("completionBar").style.width=pct+"%";}
+function resetToday(){if(confirm("Clear today's checkmarks?"))renderToday();}
 
-function finishWorkout(){
-  const p=PLAN[activeWorkoutDay], total=p.exercises.reduce((a,e)=>a+e[1],0);
-  const done=Object.values(checked).filter(Boolean).length;
-  if(done===0 && !confirm("No sets are checked. Save anyway?")) return;
-  let logs=storage();
-  logs.push({
-    id:Date.now(), date:new Date().toISOString(), scheduledDay:activeWorkoutDay, workout:p.name,
-    focus:p.focus, setsDone:done, setsPlanned:total, completion:Math.round(done/total*100),
-    effort:document.getElementById("effort").value||null,
-    weight:document.getElementById("weight").value||null,
-    notes:document.getElementById("notes").value.trim()
-  });
-  saveStorage(logs);
-  document.getElementById("effort").value="";
-  document.getElementById("weight").value="";
-  document.getElementById("notes").value="";
-  renderToday(); renderHistory(); renderProgress();
-  alert("Workout saved ✓");
+async function finishWorkout(){
+  if(!currentUser){alert("Please sign in first.");return;}
+  const p=PLAN[activeWorkoutDay],total=p.exercises.reduce((a,e)=>a+e[1],0),done=Object.values(checked).filter(Boolean).length;
+  if(done===0&&!confirm("No sets/laps are checked. Save anyway?"))return;
+  const log={id:Date.now(),date:new Date().toISOString(),scheduledDay:activeWorkoutDay,workout:p.name,focus:p.focus,setsDone:done,setsPlanned:total,completion:Math.round(done/total*100),effort:document.getElementById("effort").value||null,weight:document.getElementById("weight").value||null,notes:document.getElementById("notes").value.trim()};
+  const btn=document.getElementById("saveWorkoutBtn");btn.disabled=true;btn.textContent="Saving to cloud…";
+  const {error}=await db.from("workout_logs").insert(appToDb(log));
+  btn.disabled=false;btn.textContent="Finish & Save Workout";
+  if(error){alert("Could not save workout: "+error.message);return;}
+  document.getElementById("effort").value="";document.getElementById("weight").value="";document.getElementById("notes").value="";
+  await loadCloudLogs();renderToday();alert("Workout saved to cloud ✓");
 }
-function showTab(id,el){
-  ["today","history","progress","settings"].forEach(x=>document.getElementById(x).classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
-  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active")); el.classList.add("active");
-  if(id==="history") renderHistory();
-  if(id==="progress") renderProgress();
+
+function showTab(id,el){["today","history","progress","settings"].forEach(x=>document.getElementById(x).classList.add("hidden"));document.getElementById(id).classList.remove("hidden");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));el.classList.add("active");if(id==="history")renderHistory();if(id==="progress")renderProgress();}
+function renderHistory(){const logs=[...storage()].sort((a,b)=>new Date(b.date)-new Date(a.date)),el=document.getElementById("historyList");if(!logs.length){el.innerHTML='<div class="small">No workouts saved yet.</div>';return;}el.innerHTML=logs.map(l=>`<div class="log-item"><div class="row between"><strong>${escapeHTML(l.workout)}</strong><span class="badge">${l.completion}%</span></div><div class="small">${new Date(l.date).toLocaleDateString()} · ${l.setsDone}/${l.setsPlanned} completed${l.effort?` · effort ${l.effort}/10`:""}</div>${l.weight?`<div class="small">Weight: ${l.weight} kg</div>`:""}${l.notes?`<div style="margin-top:5px;font-size:13px">${escapeHTML(l.notes)}</div>`:""}</div>`).join("");}
+function weekKey(d){d=new Date(d);d.setHours(0,0,0,0);const day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);return d.toISOString().slice(0,10);}
+function renderProgress(){const logs=storage();document.getElementById("kpiSessions").textContent=logs.length;document.getElementById("kpiSets").textContent=logs.reduce((a,l)=>a+l.setsDone,0);const weeks={};logs.forEach(l=>{const k=weekKey(l.date);weeks[k]=(weeks[k]||0)+1;});const keys=Object.keys(weeks).sort(),totalPossible=Math.max(1,keys.length*4);document.getElementById("kpiAdherence").textContent=Math.min(100,Math.round(logs.length/totalPossible*100))+"%";document.getElementById("kpiStreak").textContent=keys.filter(k=>weeks[k]>0).length;renderWeeklyChart(weeks);renderWeightTrend(logs);populateExerciseSelect();renderStrengthProgress();}
+function renderWeeklyChart(weeks){const c=document.getElementById("weeklyChart");c.innerHTML="";const now=new Date(),arr=[];for(let i=7;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i*7);arr.push(weekKey(d));}arr.forEach(k=>{const n=Math.min(4,weeks[k]||0),h=Math.max(4,n/4*150),b=document.createElement("div");b.className="bar";b.style.height=h+"px";b.innerHTML=`<span>${k.slice(5)}</span>`;b.title=n+" sessions";c.appendChild(b);});}
+function populateExerciseSelect(){const names=[...new Set(Object.values(PLAN).flatMap(p=>p.type==="strength"?p.exercises.map(e=>e[0]):[]))],s=document.getElementById("progressExercise"),old=s.value;s.innerHTML=names.map(n=>`<option>${n}</option>`).join("");if(names.includes(old))s.value=old;}
+function renderStrengthProgress(){const ex=document.getElementById("progressExercise").value;if(!ex)return;const regex=new RegExp(ex.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+"\\s*(\\d+(?:\\.\\d+)?)\\s*kg","i"),pts=storage().map(l=>{const m=(l.notes||"").match(regex);return m?{date:l.date,w:+m[1]}:null}).filter(Boolean).sort((a,b)=>new Date(a.date)-new Date(b.date)),el=document.getElementById("strengthProgress");if(!pts.length){el.innerHTML=`<div class="small">No entries yet. In workout notes, write for example: <strong>${ex} 40kg</strong>.</div>`;return;}const first=pts[0],last=pts[pts.length-1],diff=(last.w-first.w).toFixed(1);el.innerHTML=`<div class="kpi-grid"><div class="kpi"><div class="n">${first.w}kg</div><div class="l">First logged</div></div><div class="kpi"><div class="n">${last.w}kg</div><div class="l">Latest</div></div><div class="kpi"><div class="n">${diff>=0?"+":""}${diff}kg</div><div class="l">Change</div></div><div class="kpi"><div class="n">${pts.length}</div><div class="l">Logged sessions</div></div></div>`;}
+function renderWeightTrend(logs){const pts=logs.filter(l=>l.weight).sort((a,b)=>new Date(a.date)-new Date(b.date)),el=document.getElementById("weightTrend");if(!pts.length){el.textContent="Add optional body weight when saving workouts to see your trend here.";return;}const first=+pts[0].weight,last=+pts[pts.length-1].weight,diff=(last-first).toFixed(1);el.innerHTML=`First logged: <strong>${first.toFixed(1)} kg</strong> · Latest: <strong>${last.toFixed(1)} kg</strong> · Change: <strong class="${diff<=0?'good':''}">${diff>0?'+':''}${diff} kg</strong>`;}
+
+async function migrateLocalWorkouts(){
+  const local=localStorageLogs();
+  if(!local.length){setMessage("dataMessage","No old local workouts were found on this device.");return;}
+  if(!confirm(`Move ${local.length} locally saved workout${local.length===1?"":"s"} to your cloud account? Existing matching IDs will be updated, not duplicated.`))return;
+  const rows=local.map(appToDb);document.getElementById("migrateBtn").disabled=true;setMessage("dataMessage","Moving workouts to cloud…");
+  const {error}=await db.from("workout_logs").upsert(rows,{onConflict:"id"});document.getElementById("migrateBtn").disabled=false;
+  if(error){setMessage("dataMessage","Migration failed: "+error.message,"error");return;}
+  await loadCloudLogs();setMessage("dataMessage",`${local.length} local workout${local.length===1?"":"s"} moved to cloud successfully.`,"goodstatus");
 }
-function renderHistory(){
-  let logs=storage().sort((a,b)=>new Date(b.date)-new Date(a.date));
-  let el=document.getElementById("historyList");
-  if(!logs.length){el.innerHTML='<div class="small">No workouts saved yet.</div>';return;}
-  el.innerHTML=logs.map(l=>`<div class="log-item">
-    <div class="row between"><strong>${l.workout}</strong><span class="badge">${l.completion}%</span></div>
-    <div class="small">${new Date(l.date).toLocaleDateString()} · ${l.setsDone}/${l.setsPlanned} sets${l.effort?` · effort ${l.effort}/10`:""}</div>
-    ${l.weight?`<div class="small">Weight: ${l.weight} kg</div>`:""}
-    ${l.notes?`<div style="margin-top:5px;font-size:13px">${escapeHTML(l.notes)}</div>`:""}
-  </div>`).join("");
+function exportData(){const blob=new Blob([JSON.stringify(storage(),null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="workout-tracker-cloud-backup.json";a.click();URL.revokeObjectURL(a.href);}
+function importData(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=async()=>{try{const x=JSON.parse(r.result);if(!Array.isArray(x))throw new Error("Backup must contain an array of workouts.");const rows=x.map(appToDb);const {error}=await db.from("workout_logs").upsert(rows,{onConflict:"id"});if(error)throw error;await loadCloudLogs();setMessage("dataMessage",`${rows.length} workout${rows.length===1?"":"s"} imported to cloud.`,"goodstatus");}catch(e){setMessage("dataMessage","Import failed: "+e.message,"error");}finally{ev.target.value="";}};r.readAsText(f);}
+function escapeHTML(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
+
+async function init(){
+  const {data:{session}}=await db.auth.getSession();await handleSession(session);
+  db.auth.onAuthStateChange(async(_event,newSession)=>{await handleSession(newSession);});
 }
-function weekKey(d){
-  d=new Date(d); d.setHours(0,0,0,0); let day=(d.getDay()+6)%7; d.setDate(d.getDate()-day);
-  return d.toISOString().slice(0,10);
-}
-function renderProgress(){
-  let logs=storage();
-  document.getElementById("kpiSessions").textContent=logs.length;
-  document.getElementById("kpiSets").textContent=logs.reduce((a,l)=>a+l.setsDone,0);
-  let weeks={}; logs.forEach(l=>{let k=weekKey(l.date); weeks[k]=(weeks[k]||0)+1;});
-  let keys=Object.keys(weeks).sort();
-  let totalPossible=Math.max(1, keys.length*4);
-  document.getElementById("kpiAdherence").textContent=Math.min(100,Math.round(logs.length/totalPossible*100))+"%";
-  document.getElementById("kpiStreak").textContent=keys.filter(k=>weeks[k]>0).length;
-  renderWeeklyChart(weeks);
-  renderWeightTrend(logs);
-  populateExerciseSelect();
-  renderStrengthProgress();
-}
-function renderWeeklyChart(weeks){
-  let c=document.getElementById("weeklyChart"); c.innerHTML="";
-  let now=new Date(), arr=[];
-  for(let i=7;i>=0;i--){let d=new Date(now); d.setDate(d.getDate()-i*7); arr.push(weekKey(d));}
-  arr.forEach(k=>{
-    let n=Math.min(4,weeks[k]||0), h=Math.max(4,n/4*150);
-    let b=document.createElement("div"); b.className="bar"; b.style.height=h+"px";
-    b.innerHTML=`<span>${k.slice(5)}</span>`; b.title=n+" sessions"; c.appendChild(b);
-  });
-}
-function populateExerciseSelect(){
-  const names=[...new Set(Object.values(PLAN).flatMap(p=>p.type==="strength"?p.exercises.map(e=>e[0]):[]))];
-  let s=document.getElementById("progressExercise"), old=s.value;
-  s.innerHTML=names.map(n=>`<option>${n}</option>`).join("");
-  if(names.includes(old)) s.value=old;
-}
-function renderStrengthProgress(){
-  let ex=document.getElementById("progressExercise").value;
-  if(!ex) return;
-  let regex=new RegExp(ex.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+"\\s*(\\d+(?:\\.\\d+)?)\\s*kg","i");
-  let pts=storage().map(l=>{let m=(l.notes||"").match(regex); return m?{date:l.date,w:+m[1]}:null}).filter(Boolean).sort((a,b)=>new Date(a.date)-new Date(b.date));
-  let el=document.getElementById("strengthProgress");
-  if(!pts.length){el.innerHTML=`<div class="small">No entries yet. In workout notes, write for example: <strong>${ex} 40kg</strong>.</div>`;return;}
-  let first=pts[0], last=pts[pts.length-1], diff=(last.w-first.w).toFixed(1);
-  el.innerHTML=`<div class="kpi-grid">
-    <div class="kpi"><div class="n">${first.w}kg</div><div class="l">First logged</div></div>
-    <div class="kpi"><div class="n">${last.w}kg</div><div class="l">Latest</div></div>
-    <div class="kpi"><div class="n">${diff>=0?"+":""}${diff}kg</div><div class="l">Change</div></div>
-    <div class="kpi"><div class="n">${pts.length}</div><div class="l">Logged sessions</div></div>
-  </div>`;
-}
-function renderWeightTrend(logs){
-  let pts=logs.filter(l=>l.weight).sort((a,b)=>new Date(a.date)-new Date(b.date));
-  let el=document.getElementById("weightTrend");
-  if(!pts.length){el.textContent="Add optional body weight when saving workouts to see your trend here.";return;}
-  let first=+pts[0].weight,last=+pts[pts.length-1].weight,diff=(last-first).toFixed(1);
-  el.innerHTML=`First logged: <strong>${first.toFixed(1)} kg</strong> · Latest: <strong>${last.toFixed(1)} kg</strong> · Change: <strong class="${diff<=0?'good':''}">${diff>0?'+':''}${diff} kg</strong>`;
-}
-function exportData(){
-  let blob=new Blob([JSON.stringify(storage(),null,2)],{type:"application/json"});
-  let a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="workout-tracker-backup.json";a.click();
-}
-function importData(ev){
-  let f=ev.target.files[0]; if(!f)return;
-  let r=new FileReader(); r.onload=()=>{try{let x=JSON.parse(r.result); if(!Array.isArray(x))throw 0; saveStorage(x); renderHistory();renderProgress();alert("Backup imported ✓")}catch(e){alert("That file doesn't look like a valid backup.")}};r.readAsText(f);
-}
-function escapeHTML(s){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
-renderToday(); renderHistory(); renderProgress();
+init();
 </script>
 </body>
 </html>

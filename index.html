@@ -6,6 +6,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="theme-color" content="#111111" />
+<meta name="apple-mobile-web-app-title" content="Workout BI" />
+<meta name="mobile-web-app-capable" content="yes" />
 <title>Workout Tracker</title>
 <style>
 :root{--bg:#f6f6f7;--card:#fff;--text:#141414;--muted:#6f7177;--line:#e7e7ea;--accent:#111;--soft:#efeff1;--good:#18864b;--warn:#b66b00;--bad:#b42318}
@@ -37,6 +39,21 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
 .legend-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#111;margin-right:4px}
 .line-chart-wrap{width:100%;overflow:hidden;margin-top:10px}
 .line-chart-svg{width:100%;height:auto;display:block}
+.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.home-kpi{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px}
+.home-kpi .value{font-size:28px;font-weight:800;line-height:1.05}
+.home-kpi .label{font-size:11px;color:var(--muted);margin-top:5px}
+.home-kpi.wide{grid-column:1/-1}
+.home-progress{height:9px;background:#ececef;border-radius:999px;overflow:hidden;margin-top:10px}
+.home-progress>div{height:100%;background:#111;border-radius:999px}
+.home-hero{background:#111;color:#fff;border-radius:22px;padding:18px;margin-bottom:14px}
+.home-hero .eyebrow{font-size:11px;opacity:.7;text-transform:uppercase;letter-spacing:.06em}
+.home-hero .big{font-size:34px;font-weight:800;margin-top:4px}
+.home-hero .subline{font-size:12px;opacity:.75;margin-top:6px}
+.home-action{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.home-action button{width:100%}
+@media(max-width:430px){.home-grid{grid-template-columns:1fr 1fr}.home-kpi .value{font-size:24px}}
+
 .axis-text{font-size:9px;fill:#777}
 .chart-grid-line{stroke:#e6e6e8;stroke-width:1}
 .chart-path{fill:none;stroke:#111;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
@@ -72,7 +89,53 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
 </div>
 
 <main id="appView" class="hidden">
-<section id="today">
+
+<section id="home">
+  <div class="home-hero">
+    <div class="eyebrow">Today</div>
+    <div id="homeHeadline" class="big">Loading…</div>
+    <div id="homeSubline" class="subline">Your progress snapshot</div>
+  </div>
+
+  <div class="home-grid">
+    <div class="home-kpi">
+      <div id="homeCalories" class="value">0</div>
+      <div class="label">kcal / 1,650</div>
+      <div class="home-progress"><div id="homeCaloriesBar" style="width:0%"></div></div>
+    </div>
+    <div class="home-kpi">
+      <div id="homeProtein" class="value">0g</div>
+      <div class="label">protein / 100g</div>
+      <div class="home-progress"><div id="homeProteinBar" style="width:0%"></div></div>
+    </div>
+    <div class="home-kpi">
+      <div id="homeWorkouts" class="value">0/4</div>
+      <div class="label">workouts this week</div>
+      <div class="home-progress"><div id="homeWorkoutsBar" style="width:0%"></div></div>
+    </div>
+    <div class="home-kpi">
+      <div id="homeWeight" class="value">—</div>
+      <div class="label">latest logged weight</div>
+    </div>
+    <div class="home-kpi wide">
+      <div class="label">Main focus</div>
+      <div id="homeFocus" style="font-size:16px;font-weight:750;margin-top:5px">Log a few days to identify your biggest gap.</div>
+      <div id="homeFocusDetail" class="small" style="margin-top:5px"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h2 style="margin-top:0">Quick actions</h2>
+    <div class="home-action">
+      <button onclick="openTabById('nutrition')">Log Food</button>
+      <button class="secondary" onclick="openTabById('today')">Workout</button>
+      <button class="secondary" onclick="openTabById('progress')">View Progress</button>
+      <button class="secondary" onclick="openTabById('history')">History</button>
+    </div>
+  </div>
+</section>
+
+<section id="today" class="hidden">
   <div class="card">
     <div class="row between">
       <div>
@@ -304,11 +367,11 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
 </div>
 
 <nav id="tabs" class="tabs hidden">
-  <div class="tab active" onclick="showTab('today',this)">✓<br>Today</div>
-  <div class="tab" onclick="showTab('history',this)">◷<br>History</div>
-  <div class="tab" onclick="showTab('nutrition',this)">🍽<br>Food</div>
-  <div class="tab" onclick="showTab('progress',this)">↗<br>Progress</div>
-  <div class="tab" onclick="showTab('settings',this)">⚙<br>Settings</div>
+  <div class="tab active" data-tab="home" onclick="showTab('home',this)">⌂<br>Home</div>
+  <div class="tab" data-tab="today" onclick="showTab('today',this)">✓<br>Workout</div>
+  <div class="tab" data-tab="nutrition" onclick="showTab('nutrition',this)">🍽<br>Food</div>
+  <div class="tab" data-tab="progress" onclick="showTab('progress',this)">↗<br>Progress</div>
+  <div class="tab" data-tab="settings" onclick="showTab('settings',this)">⚙<br>Settings</div>
 </nav>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -346,13 +409,13 @@ async function loadCloudLogs(){
   const {data,error}=await db.from("workout_logs").select("*").order("date",{ascending:true});
   if(error)throw error;
   cloudLogs=(data||[]).map(dbToApp);
-  renderHistory();renderProgress();
+  renderHistory();renderProgress();renderHome();
 }
 async function loadMealLogs(){
   const {data,error}=await db.from("meal_logs").select("*").order("date",{ascending:true}).order("created_at",{ascending:true});
   if(error)throw error;
   mealLogs=data||[];
-  renderNutrition();renderProgress();
+  renderNutrition();renderProgress();renderHome();
 }
 
 async function signIn(){
@@ -592,7 +655,83 @@ async function deleteWorkout(id){
   await loadCloudLogs();
 }
 
-function showTab(id,el){["today","history","nutrition","progress","settings"].forEach(x=>document.getElementById(x).classList.add("hidden"));document.getElementById(id).classList.remove("hidden");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));el.classList.add("active");if(id==="history")renderHistory();if(id==="nutrition")renderNutrition();if(id==="progress")renderProgress();}
+
+function weekStartMonday(d=new Date()){
+  const x=new Date(d);x.setHours(0,0,0,0);
+  const day=(x.getDay()+6)%7;
+  x.setDate(x.getDate()-day);
+  return x;
+}
+function renderHome(){
+  if(!document.getElementById("home")) return;
+  const today=localDateString(new Date());
+  const t=mealDayTotals(today);
+  const cal=Math.round(t.calories||0), pro=Math.round(t.protein||0);
+  document.getElementById("homeCalories").textContent=cal;
+  document.getElementById("homeProtein").textContent=pro+"g";
+  document.getElementById("homeCaloriesBar").style.width=Math.min(100,Math.round(cal/CALORIE_TARGET*100))+"%";
+  document.getElementById("homeProteinBar").style.width=Math.min(100,Math.round(pro/PROTEIN_MIN*100))+"%";
+
+  const ws=weekStartMonday();
+  const weekLogs=cloudLogs.filter(l=>new Date(l.date)>=ws);
+  document.getElementById("homeWorkouts").textContent=`${weekLogs.length}/4`;
+  document.getElementById("homeWorkoutsBar").style.width=Math.min(100,Math.round(weekLogs.length/4*100))+"%";
+
+  const weightPts=cloudLogs.filter(l=>l.weight).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  document.getElementById("homeWeight").textContent=weightPts.length?Number(weightPts[weightPts.length-1].weight).toFixed(1)+"kg":"—";
+
+  let headline="On track";
+  let subline="Keep the routine steady.";
+  const calGap=cal<CALORIE_MIN?CALORIE_MIN-cal:cal>CALORIE_MAX?cal-CALORIE_MAX:0;
+  const proGap=Math.max(0,PROTEIN_MIN-pro);
+  if(!t.rows.length){
+    headline="Log your first meal";
+    subline="Today’s nutrition data is still empty.";
+  } else if(cal>CALORIE_MAX){
+    headline="Calories above target";
+    subline=`About ${cal-CALORIE_MAX} kcal above your range today.`;
+  } else if(pro<PROTEIN_MIN && cal>=CALORIE_MIN-250){
+    headline="Protein is the gap";
+    subline=`About ${Math.ceil(proGap)} g to reach 100 g today.`;
+  } else if(cal<CALORIE_MIN-300){
+    headline="Intake looks low";
+    subline="This may be incomplete logging rather than true intake.";
+  } else if(weekLogs.length<2 && new Date().getDay()>=4){
+    headline="Workout frequency is low";
+    subline=`${weekLogs.length}/4 sessions logged this week.`;
+  }
+  document.getElementById("homeHeadline").textContent=headline;
+  document.getElementById("homeSubline").textContent=subline;
+
+  // Main focus uses simple prioritisation similar to dashboard bottleneck.
+  let focus="Keep logging consistently";
+  let detail="The dashboard gets more useful with complete workout and food data.";
+  if(t.rows.length && pro<PROTEIN_MIN){
+    focus="Hit your protein target";
+    detail=`You are at ${pro} g today; aim for at least ${PROTEIN_MIN} g.`;
+  }
+  if(t.rows.length && cal>CALORIE_MAX){
+    focus="Bring calories back into range";
+    detail=`Today is ${cal} kcal versus your ${CALORIE_MIN}–${CALORIE_MAX} kcal target.`;
+  }
+  if(weekLogs.length<2 && new Date().getDay()>=4){
+    focus="Prioritise your next workout";
+    detail=`You have ${weekLogs.length} of 4 planned sessions logged this week.`;
+  }
+  document.getElementById("homeFocus").textContent=focus;
+  document.getElementById("homeFocusDetail").textContent=detail;
+}
+function openTabById(id){
+  const tab=document.querySelector(`.tab[data-tab="${id}"]`);
+  if(tab){showTab(id,tab);return;}
+  // History is not in bottom nav; open it while clearing active bottom-tab state.
+  ["home","today","history","nutrition","progress","settings"].forEach(x=>document.getElementById(x).classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  if(id==="history")renderHistory();
+}
+
+function showTab(id,el){["home","today","history","nutrition","progress","settings"].forEach(x=>document.getElementById(x).classList.add("hidden"));document.getElementById(id).classList.remove("hidden");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));el.classList.add("active");if(id==="home")renderHome();if(id==="history")renderHistory();if(id==="nutrition")renderNutrition();if(id==="progress")renderProgress();}
 function renderHistory(){
   const logs=[...storage()].sort((a,b)=>new Date(b.date)-new Date(a.date)),el=document.getElementById("historyList");
   if(!logs.length){el.innerHTML='<div class="small">No workouts saved yet.</div>';return;}

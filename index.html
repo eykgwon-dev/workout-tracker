@@ -138,6 +138,46 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
 </section>
 </main>
 
+
+<div id="editOverlay" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:50;padding:20px;overflow:auto">
+  <div class="card" style="max-width:560px;margin:40px auto">
+    <div class="row between">
+      <h2 style="margin:0">Edit Workout</h2>
+      <button class="secondary" onclick="closeEditWorkout()">Close</button>
+    </div>
+    <input id="editId" type="hidden">
+    <div class="grid2" style="margin-top:14px">
+      <div><label>Date</label><input id="editDate" type="date"></div>
+      <div><label>Workout</label>
+        <select id="editWorkout" onchange="updateEditWorkoutDefaults()">
+          <option value="2">Lower Body A</option>
+          <option value="4">Upper Body</option>
+          <option value="6">Swimming</option>
+          <option value="0">Lower Body B</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid2" style="margin-top:10px">
+      <div><label id="editDoneLabel">Sets / laps completed</label><input id="editDone" type="number" min="0"></div>
+      <div><label id="editPlannedLabel">Sets / laps planned</label><input id="editPlanned" type="number" min="1"></div>
+    </div>
+    <div id="editDistanceWrap" class="hidden" style="margin-top:10px">
+      <label>Swimming distance</label>
+      <div id="editDistance" class="status">0 laps = 0 m</div>
+    </div>
+    <div class="grid2" style="margin-top:10px">
+      <div><label>Workout effort (1–10, optional)</label><input id="editEffort" type="number" min="1" max="10"></div>
+      <div><label>Body weight (optional, kg)</label><input id="editWeight" type="number" step="0.1"></div>
+    </div>
+    <div style="margin-top:10px"><label>Notes</label><textarea id="editNotes"></textarea></div>
+    <div class="row wrap" style="margin-top:12px">
+      <button id="updateWorkoutBtn" onclick="saveEditedWorkout()">Save Changes</button>
+      <button class="secondary" onclick="closeEditWorkout()">Cancel</button>
+    </div>
+    <div id="editMessage" class="status hidden"></div>
+  </div>
+</div>
+
 <nav id="tabs" class="tabs hidden">
   <div class="tab active" onclick="showTab('today',this)">✓<br>Today</div>
   <div class="tab" onclick="showTab('history',this)">◷<br>History</div>
@@ -317,8 +357,118 @@ async function savePastWorkout(){
   setTimeout(()=>togglePastWorkoutForm(false),700);
 }
 
+
+function findWorkoutDayByName(name){
+  const entry=Object.entries(PLAN).find(([_,p])=>p.name===name);
+  return entry?Number(entry[0]):2;
+}
+function openEditWorkout(id){
+  const l=storage().find(x=>Number(x.id)===Number(id));
+  if(!l)return;
+  const day=l.scheduledDay!=null?Number(l.scheduledDay):findWorkoutDayByName(l.workout);
+  document.getElementById("editId").value=l.id;
+  const d=new Date(l.date);
+  const localDate=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);
+  document.getElementById("editDate").value=localDate;
+  document.getElementById("editWorkout").value=String(day);
+  document.getElementById("editDone").value=l.setsDone??0;
+  document.getElementById("editPlanned").value=l.setsPlanned??1;
+  document.getElementById("editEffort").value=l.effort??"";
+  document.getElementById("editWeight").value=l.weight??"";
+  document.getElementById("editNotes").value=l.notes??"";
+  document.getElementById("editOverlay").classList.remove("hidden");
+  document.getElementById("editMessage").classList.add("hidden");
+  updateEditWorkoutDefaults(false);
+}
+function closeEditWorkout(){
+  document.getElementById("editOverlay").classList.add("hidden");
+}
+function updateEditWorkoutDefaults(resetPlanned=true){
+  const day=Number(document.getElementById("editWorkout").value);
+  const p=PLAN[day];
+  const total=p.exercises.reduce((a,e)=>a+e[1],0);
+  if(resetPlanned){
+    document.getElementById("editPlanned").value=total;
+  }
+  const swim=p.type==="swim";
+  document.getElementById("editDistanceWrap").classList.toggle("hidden",!swim);
+  document.getElementById("editDoneLabel").textContent=swim?"Laps completed":"Sets completed";
+  document.getElementById("editPlannedLabel").textContent=swim?"Laps planned":"Sets planned";
+  updateEditDistance();
+}
+function updateEditDistance(){
+  const day=Number(document.getElementById("editWorkout").value);
+  if(PLAN[day].type!=="swim")return;
+  const laps=Number(document.getElementById("editDone").value)||0;
+  document.getElementById("editDistance").textContent=`${laps} laps = ${laps*25} m`;
+}
+document.addEventListener("input",e=>{if(e.target && e.target.id==="editDone")updateEditDistance();});
+
+async function saveEditedWorkout(){
+  const id=Number(document.getElementById("editId").value);
+  const date=document.getElementById("editDate").value;
+  const day=Number(document.getElementById("editWorkout").value);
+  const p=PLAN[day];
+  const done=Number(document.getElementById("editDone").value);
+  const planned=Number(document.getElementById("editPlanned").value);
+  if(!date||!Number.isFinite(done)||done<0||!Number.isFinite(planned)||planned<1){
+    document.getElementById("editMessage").classList.remove("hidden");
+    setMessage("editMessage","Please enter a valid date and completed/planned values.","error");
+    return;
+  }
+  const old=storage().find(x=>Number(x.id)===id);
+  if(!old)return;
+  const localNoon=new Date(date+"T12:00:00");
+  const updated={
+    ...old,
+    id,
+    date:localNoon.toISOString(),
+    scheduledDay:day,
+    workout:p.name,
+    focus:p.focus,
+    setsDone:done,
+    setsPlanned:planned,
+    completion:Math.min(100,Math.round(done/planned*100)),
+    effort:document.getElementById("editEffort").value||null,
+    weight:document.getElementById("editWeight").value||null,
+    notes:document.getElementById("editNotes").value.trim()
+  };
+  const btn=document.getElementById("updateWorkoutBtn");
+  btn.disabled=true;btn.textContent="Saving…";
+  const {error}=await db.from("workout_logs").update(appToDb(updated)).eq("id",id);
+  btn.disabled=false;btn.textContent="Save Changes";
+  document.getElementById("editMessage").classList.remove("hidden");
+  if(error){setMessage("editMessage","Could not update workout: "+error.message,"error");return;}
+  await loadCloudLogs();
+  setMessage("editMessage","Workout updated ✓","goodstatus");
+  setTimeout(closeEditWorkout,600);
+}
+
+async function deleteWorkout(id){
+  const l=storage().find(x=>Number(x.id)===Number(id));
+  if(!l)return;
+  const label=`${l.workout} on ${new Date(l.date).toLocaleDateString()}`;
+  if(!confirm(`Delete ${label}? This cannot be undone.`))return;
+  const {error}=await db.from("workout_logs").delete().eq("id",Number(id));
+  if(error){alert("Could not delete workout: "+error.message);return;}
+  await loadCloudLogs();
+}
+
 function showTab(id,el){["today","history","progress","settings"].forEach(x=>document.getElementById(x).classList.add("hidden"));document.getElementById(id).classList.remove("hidden");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));el.classList.add("active");if(id==="history")renderHistory();if(id==="progress")renderProgress();}
-function renderHistory(){const logs=[...storage()].sort((a,b)=>new Date(b.date)-new Date(a.date)),el=document.getElementById("historyList");if(!logs.length){el.innerHTML='<div class="small">No workouts saved yet.</div>';return;}el.innerHTML=logs.map(l=>`<div class="log-item"><div class="row between"><strong>${escapeHTML(l.workout)}</strong><span class="badge">${l.completion}%</span></div><div class="small">${new Date(l.date).toLocaleDateString()} · ${l.setsDone}/${l.setsPlanned} completed${l.effort?` · effort ${l.effort}/10`:""}</div>${l.weight?`<div class="small">Weight: ${l.weight} kg</div>`:""}${l.notes?`<div style="margin-top:5px;font-size:13px">${escapeHTML(l.notes)}</div>`:""}</div>`).join("");}
+function renderHistory(){
+  const logs=[...storage()].sort((a,b)=>new Date(b.date)-new Date(a.date)),el=document.getElementById("historyList");
+  if(!logs.length){el.innerHTML='<div class="small">No workouts saved yet.</div>';return;}
+  el.innerHTML=logs.map(l=>`<div class="log-item">
+    <div class="row between"><strong>${escapeHTML(l.workout)}</strong><span class="badge">${l.completion}%</span></div>
+    <div class="small">${new Date(l.date).toLocaleDateString()} · ${l.setsDone}/${l.setsPlanned} completed${l.effort?` · effort ${l.effort}/10`:""}</div>
+    ${l.weight?`<div class="small">Weight: ${l.weight} kg</div>`:""}
+    ${l.notes?`<div style="margin-top:5px;font-size:13px">${escapeHTML(l.notes)}</div>`:""}
+    <div class="row wrap" style="margin-top:10px">
+      <button class="secondary" onclick="openEditWorkout(${l.id})">Edit</button>
+      <button class="danger" onclick="deleteWorkout(${l.id})">Delete</button>
+    </div>
+  </div>`).join("");
+}
 function weekKey(d){d=new Date(d);d.setHours(0,0,0,0);const day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);return d.toISOString().slice(0,10);}
 function renderProgress(){const logs=storage();document.getElementById("kpiSessions").textContent=logs.length;document.getElementById("kpiSets").textContent=logs.reduce((a,l)=>a+l.setsDone,0);const weeks={};logs.forEach(l=>{const k=weekKey(l.date);weeks[k]=(weeks[k]||0)+1;});const keys=Object.keys(weeks).sort(),totalPossible=Math.max(1,keys.length*4);document.getElementById("kpiAdherence").textContent=Math.min(100,Math.round(logs.length/totalPossible*100))+"%";document.getElementById("kpiStreak").textContent=keys.filter(k=>weeks[k]>0).length;renderWeeklyChart(weeks);renderWeightTrend(logs);populateExerciseSelect();renderStrengthProgress();}
 function renderWeeklyChart(weeks){const c=document.getElementById("weeklyChart");c.innerHTML="";const now=new Date(),arr=[];for(let i=7;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i*7);arr.push(weekKey(d));}arr.forEach(k=>{const n=Math.min(4,weeks[k]||0),h=Math.max(4,n/4*150),b=document.createElement("div");b.className="bar";b.style.height=h+"px";b.innerHTML=`<span>${k.slice(5)}</span>`;b.title=n+" sessions";c.appendChild(b);});}

@@ -151,10 +151,34 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
     </div>
   </div>
   <div id="exerciseList" class="card"></div>
+  <div id="strengthDetailsCard" class="card">
+    <h2 style="margin-top:0">Strength details</h2>
+    <div class="small" style="margin-bottom:10px">Enter the load used for each exercise above. For calorie estimation, also record roughly how long the strength portion took and how heavy it felt overall.</div>
+    <div class="grid2">
+      <div><label>Strength duration (min)</label><input id="strengthMinutes" type="number" min="0" step="1" placeholder="e.g. 45" oninput="updateBurnEstimate()"></div>
+      <div><label>Weight heaviness</label><select id="strengthIntensity" onchange="updateBurnEstimate()"><option value="light">Light</option><option value="moderate" selected>Moderate</option><option value="heavy">Heavy</option></select></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2 style="margin-top:0">Walk / Run</h2>
+    <div class="small" style="margin-bottom:10px">Optional cardio before or after your strength workout.</div>
+    <div class="grid2">
+      <div><label>Cardio type</label><select id="cardioType" onchange="updateBurnEstimate()"><option value="none">None</option><option value="walk">Walk</option><option value="run">Run</option></select></div>
+      <div><label>Duration (min)</label><input id="cardioMinutes" type="number" min="0" step="1" placeholder="e.g. 20" oninput="updateBurnEstimate()"></div>
+    </div>
+    <div class="grid2" style="margin-top:10px">
+      <div><label>Speed (km/h)</label><input id="cardioSpeed" type="number" min="0" step="0.1" placeholder="e.g. 3.5" oninput="updateBurnEstimate()"></div>
+      <div><label>Incline (%)</label><input id="cardioIncline" type="number" min="0" step="0.5" placeholder="e.g. 10" oninput="updateBurnEstimate()"></div>
+    </div>
+  </div>
   <div class="card">
     <div class="grid2">
-      <div><label>Workout effort (1–10)</label><input id="effort" type="number" min="1" max="10" placeholder="e.g. 7"/></div>
-      <div><label>Body weight (optional, kg)</label><input id="weight" type="number" step="0.1" placeholder="e.g. 64.8"/></div>
+      <div><label>Workout effort (1–10)</label><input id="effort" type="number" min="1" max="10" placeholder="e.g. 7" oninput="updateBurnEstimate()"/></div>
+      <div><label>Body weight (optional, kg)</label><input id="weight" type="number" step="0.1" placeholder="e.g. 64.8" oninput="updateBurnEstimate()"/></div>
+    </div>
+    <div class="goal-band" style="margin-top:12px">
+      <div class="row between"><strong>Estimated calories burned</strong><strong id="burnEstimate">—</strong></div>
+      <div id="burnEstimateDetail" class="small" style="margin-top:5px">Add duration/cardio details for an estimate.</div>
     </div>
     <div style="margin-top:10px"><label>Notes</label><textarea id="notes" placeholder="Weights used, energy, anything you want to remember..."></textarea></div>
     <button id="saveWorkoutBtn" style="width:100%;margin-top:12px" onclick="finishWorkout()">Finish & Save Workout</button>
@@ -316,8 +340,10 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
     <div id="calorieWeightCommentary" class="note" style="margin-top:10px"></div>
   </div>
 
+  <div class="card"><div class="row between"><div><h2 style="margin:0">Workout Calories</h2><div class="small" style="margin-top:4px">Estimated exercise energy expenditure from your logged sessions.</div></div><span class="badge">7 days</span></div><div class="dual-metric"><div class="box"><div id="burn7Total" class="v">—</div><div class="l">Estimated kcal burned</div></div><div class="box"><div id="burn7Avg" class="v">—</div><div class="l">Avg per workout</div></div></div><div id="burn7Note" class="note" style="margin-top:10px"></div></div>
+
   <div class="card"><div class="row between"><h2 style="margin:0">Workout Frequency</h2><span class="small">sessions / target 4</span></div><div id="weeklyChart" class="chart"></div></div>
-  <div class="card"><h2 style="margin-top:0">Strength Progress</h2><div class="small" style="margin-bottom:10px">Track a key exercise by saving the weight in Notes, for example “Hip thrust 60kg”.</div><label>Exercise</label><select id="progressExercise" onchange="renderStrengthProgress()"></select><div id="strengthProgress" style="margin-top:14px"></div></div>
+  <div class="card"><h2 style="margin-top:0">Strength Progress</h2><div class="small" style="margin-bottom:10px">Track the weight you use for each strength exercise. New workouts use the dedicated load fields; older note-based entries still work.</div><label>Exercise</label><select id="progressExercise" onchange="renderStrengthProgress()"></select><div id="strengthProgress" style="margin-top:14px"></div></div>
   <div class="card"><h2 style="margin-top:0">Weight Trend</h2><div id="weightTrend" class="small">Add body weight when saving workouts to see your trend here.</div></div>
 </section>
 
@@ -415,8 +441,25 @@ function localStorageLogs(){try{return JSON.parse(localStorage.getItem("workoutL
 function setMessage(id,text,type=""){const el=document.getElementById(id);el.textContent=text;el.className="status"+(type?" "+type:"");}
 function setAuthBusy(busy){document.getElementById("signInBtn").disabled=busy;document.getElementById("signUpBtn").disabled=busy;}
 
-function dbToApp(r){return {id:Number(r.id),date:r.date,scheduledDay:r.scheduled_day,workout:r.workout,focus:r.focus,setsDone:r.sets_done,setsPlanned:r.sets_planned,completion:r.completion,effort:r.effort,weight:r.weight,notes:r.notes||""};}
-function appToDb(l){return {id:Number(l.id)||Date.now(),user_id:currentUser.id,date:l.date||new Date().toISOString(),scheduled_day:l.scheduledDay??l.scheduled_day??null,workout:l.workout||"Workout",focus:l.focus||null,sets_done:Number(l.setsDone??l.sets_done??0),sets_planned:Number(l.setsPlanned??l.sets_planned??0),completion:Number(l.completion??0),effort:(l.effort===""||l.effort==null)?null:Number(l.effort),weight:(l.weight===""||l.weight==null)?null:Number(l.weight),notes:l.notes||""};}
+const META_PREFIX="[[WORKOUT_META]]";
+function splitWorkoutNotes(raw){
+  const notes=raw||"";
+  const lines=notes.split("\n");
+  const metaLine=lines.find(x=>x.startsWith(META_PREFIX));
+  let meta={};
+  if(metaLine){try{meta=JSON.parse(decodeURIComponent(metaLine.slice(META_PREFIX.length)));}catch(e){meta={};}}
+  return {notes:lines.filter(x=>!x.startsWith(META_PREFIX)).join("\n").trim(),meta};
+}
+function packWorkoutNotes(notes,meta){
+  const clean=(notes||"").trim();
+  const payload=META_PREFIX+encodeURIComponent(JSON.stringify(meta||{}));
+  return clean?clean+"\n"+payload:payload;
+}
+function dbToApp(r){const x=splitWorkoutNotes(r.notes||"");return {id:Number(r.id),date:r.date,scheduledDay:r.scheduled_day,workout:r.workout,focus:r.focus,setsDone:r.sets_done,setsPlanned:r.sets_planned,completion:r.completion,effort:r.effort,weight:r.weight,notes:x.notes,...x.meta};}
+function appToDb(l){
+  const meta={strengthMinutes:l.strengthMinutes??null,strengthIntensity:l.strengthIntensity??null,exerciseLoads:l.exerciseLoads||{},cardioType:l.cardioType||"none",cardioMinutes:l.cardioMinutes??null,cardioSpeed:l.cardioSpeed??null,cardioIncline:l.cardioIncline??null,estimatedCalories:l.estimatedCalories??null};
+  return {id:Number(l.id)||Date.now(),user_id:currentUser.id,date:l.date||new Date().toISOString(),scheduled_day:l.scheduledDay??l.scheduled_day??null,workout:l.workout||"Workout",focus:l.focus||null,sets_done:Number(l.setsDone??l.sets_done??0),sets_planned:Number(l.setsPlanned??l.sets_planned??0),completion:Number(l.completion??0),effort:(l.effort===""||l.effort==null)?null:Number(l.effort),weight:(l.weight===""||l.weight==null)?null:Number(l.weight),notes:packWorkoutNotes(l.notes||"",meta)};
+}
 
 async function loadCloudLogs(){
   const {data,error}=await db.from("workout_logs").select("*").order("date",{ascending:true});
@@ -472,55 +515,63 @@ async function handleSession(session){
   try{await Promise.all([loadCloudLogs(),loadMealLogs()]);}catch(e){alert("Could not load cloud data: "+e.message);}
 }
 
-function workoutDraftKey(){
-  // Keep in-progress set/lap checkmarks for this user, date and scheduled workout.
-  // This survives accidental re-renders, page refreshes and reopening the iPhone Home Screen app.
-  const uid=currentUser?.id||"guest";
-  return `workoutDraft:${uid}:${localDateString(new Date())}:${activeWorkoutDay}`;
-}
-function loadWorkoutDraft(){
-  try{
-    const draft=JSON.parse(localStorage.getItem(workoutDraftKey())||"{}");
-    return draft&&typeof draft==="object"?draft:{};
-  }catch(e){return {};}
-}
-function saveWorkoutDraft(){
-  localStorage.setItem(workoutDraftKey(),JSON.stringify(checked));
-}
-function clearWorkoutDraft(){
-  localStorage.removeItem(workoutDraftKey());
-}
-
 function renderToday(){
   const p=PLAN[activeWorkoutDay];
   document.getElementById("todayDay").textContent=DAYS[activeWorkoutDay];
   document.getElementById("todayTitle").textContent=p.name;
   document.getElementById("todaySubtitle").textContent=(currentDay===activeWorkoutDay?"Today":"Next scheduled workout")+" · "+p.focus+(p.type==="swim"?" · 34 laps / 850 m":"");
-  checked=loadWorkoutDraft();let html="";
-  p.exercises.forEach((e,i)=>{const unit=p.type==="swim"?"laps":"sets";html+=`<div class="exercise"><h3>${e[0]}</h3><div class="meta">${e[1]} ${unit} · ${e[2]}</div><div class="sets" style="margin-top:10px">`;for(let s=1;s<=e[1];s++){const label=p.type==="swim"?`L${s}`:`S${s}`;const key=i+"-"+s;html+=`<div class="set${checked[key]?" done":""}" id="set-${i}-${s}" onclick="toggleSet(${i},${s})">${label}</div>`;}html+="</div></div>";});
-  document.getElementById("exerciseList").innerHTML=html;updateCompletion();
+  checked={};let html="";
+  p.exercises.forEach((e,i)=>{const unit=p.type==="swim"?"laps":"sets";html+=`<div class="exercise"><h3>${e[0]}</h3><div class="meta">${e[1]} ${unit} · ${e[2]}</div>`;if(p.type==="strength")html+=`<div style="margin-top:9px"><label>Weight used (kg)</label><input id="exerciseLoad-${i}" class="exercise-load" type="number" min="0" step="0.5" placeholder="e.g. 30" oninput="updateBurnEstimate()"></div>`;html+=`<div class="sets" style="margin-top:10px">`;for(let s=1;s<=e[1];s++){const label=p.type==="swim"?`L${s}`:`S${s}`;html+=`<div class="set" id="set-${i}-${s}" onclick="toggleSet(${i},${s})">${label}</div>`;}html+="</div></div>";});
+  document.getElementById("exerciseList").innerHTML=html;
+  document.getElementById("strengthDetailsCard").classList.toggle("hidden",p.type!=="strength");
+  updateCompletion();updateBurnEstimate();
 }
-function toggleSet(i,s){
-  const key=i+"-"+s;
-  checked[key]=!checked[key];
-  saveWorkoutDraft();
-  document.getElementById("set-"+i+"-"+s).classList.toggle("done",checked[key]);
-  updateCompletion();
+function toggleSet(i,s){const key=i+"-"+s;checked[key]=!checked[key];document.getElementById("set-"+i+"-"+s).classList.toggle("done",checked[key]);updateCompletion();}
+function updateCompletion(){const p=PLAN[activeWorkoutDay],total=p.exercises.reduce((a,e)=>a+e[1],0),done=Object.values(checked).filter(Boolean).length,pct=Math.round(done/total*100);document.getElementById("completionText").textContent=pct+"%";document.getElementById("completionBar").style.width=pct+"%";updateBurnEstimate();}
+function resetToday(){if(confirm("Clear today's checkmarks?"))renderToday();}
+
+function currentEstimateWeight(){
+  const entered=Number(document.getElementById("weight")?.value);if(entered>0)return entered;
+  const pts=cloudLogs.filter(l=>Number(l.weight)>0).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  return pts.length?Number(pts.at(-1).weight):64;
 }
-function updateCompletion(){const p=PLAN[activeWorkoutDay],total=p.exercises.reduce((a,e)=>a+e[1],0),done=Object.values(checked).filter(Boolean).length,pct=Math.round(done/total*100);document.getElementById("completionText").textContent=pct+"%";document.getElementById("completionBar").style.width=pct+"%";}
-function resetToday(){if(confirm("Clear today's checkmarks?")){checked={};clearWorkoutDraft();renderToday();}}
+function metCalories(met,minutes,kg){return met*3.5*kg/200*Math.max(0,minutes||0);}
+function cardioMET(type,speed,incline){
+  speed=Number(speed)||0;incline=Number(incline)||0;
+  if(type==="run"){if(speed>=11)return 11.5;if(speed>=9.5)return 9.8;if(speed>=8)return 8.3;return 7.0;}
+  if(type==="walk"){let met=speed>=6?4.8:speed>=5?3.8:speed>=4?3.3:2.8;if(incline>=12)met+=4.0;else if(incline>=8)met+=3.0;else if(incline>=5)met+=2.0;else if(incline>=2)met+=1.0;return met;}
+  return 0;
+}
+function collectExerciseLoads(){
+  const p=PLAN[activeWorkoutDay],out={};if(p.type!=="strength")return out;
+  p.exercises.forEach((e,i)=>{const v=Number(document.getElementById(`exerciseLoad-${i}`)?.value);if(v>0)out[e[0]]=v;});return out;
+}
+function calculateBurn(details={}){
+  const p=PLAN[details.day??activeWorkoutDay],kg=Number(details.weight)||currentEstimateWeight();let strength=0,swim=0,cardio=0;
+  if(p.type==="strength"){const mins=Number(details.strengthMinutes)||0;const met={light:3.0,moderate:4.5,heavy:6.0}[details.strengthIntensity||"moderate"]||4.5;strength=metCalories(met,mins,kg);}
+  if(p.type==="swim"){const laps=Number(details.setsDone)||0;const mins=Number(details.swimMinutes)||Math.max(0,laps*1.1);swim=metCalories(6.0,mins,kg);}
+  const ctype=details.cardioType||"none",cmins=Number(details.cardioMinutes)||0;cardio=metCalories(cardioMET(ctype,details.cardioSpeed,details.cardioIncline),cmins,kg);
+  return {total:Math.round(strength+swim+cardio),strength:Math.round(strength),swim:Math.round(swim),cardio:Math.round(cardio),kg};
+}
+function updateBurnEstimate(){
+  const el=document.getElementById("burnEstimate");if(!el)return;const p=PLAN[activeWorkoutDay],done=Object.values(checked).filter(Boolean).length;
+  const r=calculateBurn({day:activeWorkoutDay,weight:document.getElementById("weight")?.value,strengthMinutes:document.getElementById("strengthMinutes")?.value,strengthIntensity:document.getElementById("strengthIntensity")?.value,setsDone:done,cardioType:document.getElementById("cardioType")?.value,cardioMinutes:document.getElementById("cardioMinutes")?.value,cardioSpeed:document.getElementById("cardioSpeed")?.value,cardioIncline:document.getElementById("cardioIncline")?.value});
+  el.textContent=r.total?`~${r.total} kcal`:"—";
+  const bits=[];if(r.strength)bits.push(`strength ~${r.strength}`);if(r.swim)bits.push(`swim ~${r.swim}`);if(r.cardio)bits.push(`cardio ~${r.cardio}`);
+  document.getElementById("burnEstimateDetail").textContent=(bits.length?bits.join(" kcal · ")+" kcal. ":"Add duration/cardio details for an estimate. ")+`Using ${r.kg.toFixed(1)} kg body weight. Estimates are approximate.`;
+}
 
 async function finishWorkout(){
   if(!currentUser){alert("Please sign in first.");return;}
   const p=PLAN[activeWorkoutDay],total=p.exercises.reduce((a,e)=>a+e[1],0),done=Object.values(checked).filter(Boolean).length;
   if(done===0&&!confirm("No sets/laps are checked. Save anyway?"))return;
-  const log={id:Date.now(),date:new Date().toISOString(),scheduledDay:activeWorkoutDay,workout:p.name,focus:p.focus,setsDone:done,setsPlanned:total,completion:Math.round(done/total*100),effort:document.getElementById("effort").value||null,weight:document.getElementById("weight").value||null,notes:document.getElementById("notes").value.trim()};
+  const burn=calculateBurn({day:activeWorkoutDay,weight:document.getElementById("weight").value,strengthMinutes:document.getElementById("strengthMinutes")?.value,strengthIntensity:document.getElementById("strengthIntensity")?.value,setsDone:done,cardioType:document.getElementById("cardioType").value,cardioMinutes:document.getElementById("cardioMinutes").value,cardioSpeed:document.getElementById("cardioSpeed").value,cardioIncline:document.getElementById("cardioIncline").value});
+  const log={id:Date.now(),date:new Date().toISOString(),scheduledDay:activeWorkoutDay,workout:p.name,focus:p.focus,setsDone:done,setsPlanned:total,completion:Math.round(done/total*100),effort:document.getElementById("effort").value||null,weight:document.getElementById("weight").value||null,notes:document.getElementById("notes").value.trim(),strengthMinutes:document.getElementById("strengthMinutes")?.value||null,strengthIntensity:document.getElementById("strengthIntensity")?.value||null,exerciseLoads:collectExerciseLoads(),cardioType:document.getElementById("cardioType").value,cardioMinutes:document.getElementById("cardioMinutes").value||null,cardioSpeed:document.getElementById("cardioSpeed").value||null,cardioIncline:document.getElementById("cardioIncline").value||null,estimatedCalories:burn.total||null};
   const btn=document.getElementById("saveWorkoutBtn");btn.disabled=true;btn.textContent="Saving to cloud…";
   const {error}=await db.from("workout_logs").insert(appToDb(log));
   btn.disabled=false;btn.textContent="Finish & Save Workout";
   if(error){alert("Could not save workout: "+error.message);return;}
-  document.getElementById("effort").value="";document.getElementById("weight").value="";document.getElementById("notes").value="";
-  clearWorkoutDraft();checked={};
+  document.getElementById("effort").value="";document.getElementById("weight").value="";document.getElementById("notes").value="";["strengthMinutes","cardioMinutes","cardioSpeed","cardioIncline"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});document.getElementById("cardioType").value="none";document.getElementById("strengthIntensity").value="moderate";
   await loadCloudLogs();renderToday();alert("Workout saved to cloud ✓");
 }
 
@@ -777,7 +828,11 @@ function renderHistory(){
   el.innerHTML=logs.map(l=>`<div class="log-item">
     <div class="row between"><strong>${escapeHTML(l.workout)}</strong><span class="badge">${l.completion}%</span></div>
     <div class="small">${new Date(l.date).toLocaleDateString()} · ${l.setsDone}/${l.setsPlanned} completed${l.effort?` · effort ${l.effort}/10`:""}</div>
-    ${l.weight?`<div class="small">Weight: ${l.weight} kg</div>`:""}
+    ${l.weight?`<div class="small">Body weight: ${l.weight} kg</div>`:""}
+    ${l.estimatedCalories?`<div class="small"><strong>Estimated burn: ~${Math.round(l.estimatedCalories)} kcal</strong></div>`:""}
+    ${l.strengthMinutes?`<div class="small">Strength: ${l.strengthMinutes} min · ${escapeHTML(l.strengthIntensity||"moderate")} intensity</div>`:""}
+    ${l.cardioType&&l.cardioType!=="none"?`<div class="small">${l.cardioType==="run"?"Run":"Walk"}: ${l.cardioMinutes||0} min${l.cardioSpeed?` · ${l.cardioSpeed} km/h`:""}${l.cardioIncline?` · incline ${l.cardioIncline}%`:""}</div>`:""}
+    ${l.exerciseLoads&&Object.keys(l.exerciseLoads).length?`<div class="small">Loads: ${Object.entries(l.exerciseLoads).map(([k,v])=>`${escapeHTML(k)} ${v}kg`).join(" · ")}</div>`:""}
     ${l.notes?`<div style="margin-top:5px;font-size:13px">${escapeHTML(l.notes)}</div>`:""}
     <div class="row wrap" style="margin-top:10px">
       <button class="secondary" onclick="openEditWorkout(${l.id})">Edit</button>
@@ -1025,8 +1080,18 @@ function renderAnalysis(logs){
     : `<strong>Not enough data yet</strong><div class="small">Log workouts and meals for a week to identify your main bottleneck.</div>`;
 }
 
+function renderWorkoutBurnStats(){
+  const cutoff=new Date();cutoff.setDate(cutoff.getDate()-6);cutoff.setHours(0,0,0,0);
+  const logs=cloudLogs.filter(l=>new Date(l.date)>=cutoff && Number(l.estimatedCalories)>0);
+  const total=Math.round(logs.reduce((a,l)=>a+Number(l.estimatedCalories||0),0));
+  document.getElementById("burn7Total").textContent=logs.length?total:"—";
+  document.getElementById("burn7Avg").textContent=logs.length?Math.round(total/logs.length):"—";
+  document.getElementById("burn7Note").textContent=logs.length?`${logs.length} workout${logs.length===1?"":"s"} with calorie estimates in the last 7 days. These are planning estimates, not precise measurements.`:"New workouts with strength duration and/or walk/run details will populate this view.";
+}
+
 function renderProgress(){
   const logs=storage();
+  renderWorkoutBurnStats();
   const weeks={};logs.forEach(l=>{const k=weekKey(l.date);weeks[k]=(weeks[k]||0)+1;});
   renderWeeklyChart(weeks);
   renderWeightTrend(logs);
@@ -1037,7 +1102,18 @@ function renderProgress(){
 }
 function renderWeeklyChart(weeks){const c=document.getElementById("weeklyChart");c.innerHTML="";const now=new Date(),arr=[];for(let i=7;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i*7);arr.push(weekKey(d));}arr.forEach(k=>{const n=Math.min(4,weeks[k]||0),h=Math.max(4,n/4*150),b=document.createElement("div");b.className="bar";b.style.height=h+"px";b.innerHTML=`<span>${k.slice(5)}</span>`;b.title=n+" sessions";c.appendChild(b);});}
 function populateExerciseSelect(){const names=[...new Set(Object.values(PLAN).flatMap(p=>p.type==="strength"?p.exercises.map(e=>e[0]):[]))],s=document.getElementById("progressExercise"),old=s.value;s.innerHTML=names.map(n=>`<option>${n}</option>`).join("");if(names.includes(old))s.value=old;}
-function renderStrengthProgress(){const ex=document.getElementById("progressExercise").value;if(!ex)return;const regex=new RegExp(ex.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+"\\s*(\\d+(?:\\.\\d+)?)\\s*kg","i"),pts=storage().map(l=>{const m=(l.notes||"").match(regex);return m?{date:l.date,w:+m[1]}:null}).filter(Boolean).sort((a,b)=>new Date(a.date)-new Date(b.date)),el=document.getElementById("strengthProgress");if(!pts.length){el.innerHTML=`<div class="small">No entries yet. In workout notes, write for example: <strong>${ex} 40kg</strong>.</div>`;return;}const first=pts[0],last=pts[pts.length-1],diff=(last.w-first.w).toFixed(1);el.innerHTML=`<div class="kpi-grid"><div class="kpi"><div class="n">${first.w}kg</div><div class="l">First logged</div></div><div class="kpi"><div class="n">${last.w}kg</div><div class="l">Latest</div></div><div class="kpi"><div class="n">${diff>=0?"+":""}${diff}kg</div><div class="l">Change</div></div><div class="kpi"><div class="n">${pts.length}</div><div class="l">Logged sessions</div></div></div>`;}
+function renderStrengthProgress(){
+  const ex=document.getElementById("progressExercise").value;if(!ex)return;
+  const regex=new RegExp(ex.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+"\\s*(\\d+(?:\\.\\d+)?)\\s*kg","i");
+  const pts=storage().map(l=>{
+    const structured=Number(l.exerciseLoads?.[ex]);if(structured>0)return {date:l.date,w:structured};
+    const m=(l.notes||"").match(regex);return m?{date:l.date,w:+m[1]}:null;
+  }).filter(Boolean).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const el=document.getElementById("strengthProgress");
+  if(!pts.length){el.innerHTML=`<div class="small">No load entries yet for <strong>${ex}</strong>. Enter the kg used beside the exercise when you log your next strength workout.</div>`;return;}
+  const first=pts[0],last=pts[pts.length-1],diff=(last.w-first.w).toFixed(1);
+  el.innerHTML=`<div class="kpi-grid"><div class="kpi"><div class="n">${first.w}kg</div><div class="l">First logged</div></div><div class="kpi"><div class="n">${last.w}kg</div><div class="l">Latest</div></div><div class="kpi"><div class="n">${diff>=0?"+":""}${diff}kg</div><div class="l">Change</div></div><div class="kpi"><div class="n">${pts.length}</div><div class="l">Logged sessions</div></div></div>`;
+}
 function renderWeightTrend(logs){const pts=logs.filter(l=>l.weight).sort((a,b)=>new Date(a.date)-new Date(b.date)),el=document.getElementById("weightTrend");if(!pts.length){el.textContent="Add optional body weight when saving workouts to see your trend here.";return;}const first=+pts[0].weight,last=+pts[pts.length-1].weight,diff=(last-first).toFixed(1);el.innerHTML=`First logged: <strong>${first.toFixed(1)} kg</strong> · Latest: <strong>${last.toFixed(1)} kg</strong> · Change: <strong class="${diff<=0?'good':''}">${diff>0?'+':''}${diff} kg</strong>`;}
 
 async function migrateLocalWorkouts(){

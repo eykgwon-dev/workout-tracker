@@ -472,18 +472,43 @@ async function handleSession(session){
   try{await Promise.all([loadCloudLogs(),loadMealLogs()]);}catch(e){alert("Could not load cloud data: "+e.message);}
 }
 
+function workoutDraftKey(){
+  // Keep in-progress set/lap checkmarks for this user, date and scheduled workout.
+  // This survives accidental re-renders, page refreshes and reopening the iPhone Home Screen app.
+  const uid=currentUser?.id||"guest";
+  return `workoutDraft:${uid}:${localDateString(new Date())}:${activeWorkoutDay}`;
+}
+function loadWorkoutDraft(){
+  try{
+    const draft=JSON.parse(localStorage.getItem(workoutDraftKey())||"{}");
+    return draft&&typeof draft==="object"?draft:{};
+  }catch(e){return {};}
+}
+function saveWorkoutDraft(){
+  localStorage.setItem(workoutDraftKey(),JSON.stringify(checked));
+}
+function clearWorkoutDraft(){
+  localStorage.removeItem(workoutDraftKey());
+}
+
 function renderToday(){
   const p=PLAN[activeWorkoutDay];
   document.getElementById("todayDay").textContent=DAYS[activeWorkoutDay];
   document.getElementById("todayTitle").textContent=p.name;
   document.getElementById("todaySubtitle").textContent=(currentDay===activeWorkoutDay?"Today":"Next scheduled workout")+" · "+p.focus+(p.type==="swim"?" · 34 laps / 850 m":"");
-  checked={};let html="";
-  p.exercises.forEach((e,i)=>{const unit=p.type==="swim"?"laps":"sets";html+=`<div class="exercise"><h3>${e[0]}</h3><div class="meta">${e[1]} ${unit} · ${e[2]}</div><div class="sets" style="margin-top:10px">`;for(let s=1;s<=e[1];s++){const label=p.type==="swim"?`L${s}`:`S${s}`;html+=`<div class="set" id="set-${i}-${s}" onclick="toggleSet(${i},${s})">${label}</div>`;}html+="</div></div>";});
+  checked=loadWorkoutDraft();let html="";
+  p.exercises.forEach((e,i)=>{const unit=p.type==="swim"?"laps":"sets";html+=`<div class="exercise"><h3>${e[0]}</h3><div class="meta">${e[1]} ${unit} · ${e[2]}</div><div class="sets" style="margin-top:10px">`;for(let s=1;s<=e[1];s++){const label=p.type==="swim"?`L${s}`:`S${s}`;const key=i+"-"+s;html+=`<div class="set${checked[key]?" done":""}" id="set-${i}-${s}" onclick="toggleSet(${i},${s})">${label}</div>`;}html+="</div></div>";});
   document.getElementById("exerciseList").innerHTML=html;updateCompletion();
 }
-function toggleSet(i,s){const key=i+"-"+s;checked[key]=!checked[key];document.getElementById("set-"+i+"-"+s).classList.toggle("done",checked[key]);updateCompletion();}
+function toggleSet(i,s){
+  const key=i+"-"+s;
+  checked[key]=!checked[key];
+  saveWorkoutDraft();
+  document.getElementById("set-"+i+"-"+s).classList.toggle("done",checked[key]);
+  updateCompletion();
+}
 function updateCompletion(){const p=PLAN[activeWorkoutDay],total=p.exercises.reduce((a,e)=>a+e[1],0),done=Object.values(checked).filter(Boolean).length,pct=Math.round(done/total*100);document.getElementById("completionText").textContent=pct+"%";document.getElementById("completionBar").style.width=pct+"%";}
-function resetToday(){if(confirm("Clear today's checkmarks?"))renderToday();}
+function resetToday(){if(confirm("Clear today's checkmarks?")){checked={};clearWorkoutDraft();renderToday();}}
 
 async function finishWorkout(){
   if(!currentUser){alert("Please sign in first.");return;}
@@ -495,6 +520,7 @@ async function finishWorkout(){
   btn.disabled=false;btn.textContent="Finish & Save Workout";
   if(error){alert("Could not save workout: "+error.message);return;}
   document.getElementById("effort").value="";document.getElementById("weight").value="";document.getElementById("notes").value="";
+  clearWorkoutDraft();checked={};
   await loadCloudLogs();renderToday();alert("Workout saved to cloud ✓");
 }
 

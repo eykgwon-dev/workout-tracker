@@ -145,6 +145,10 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
       </div>
       <button class="secondary" onclick="resetToday()">Reset</button>
     </div>
+    <div class="grid2" style="margin-top:14px">
+      <div><label>Workout date</label><input id="workoutDate" type="date" onchange="changeWorkoutDate(this.value)"></div>
+      <div><label>Workout</label><select id="workoutDaySelect" onchange="changeWorkoutDay(this.value)"><option value="2">Lower Body A</option><option value="4">Upper Body</option><option value="6">Swimming</option><option value="0">Lower Body B</option></select></div>
+    </div>
     <div style="margin-top:14px">
       <div class="row between small"><span>Workout completion</span><strong id="completionText">0%</strong></div>
       <div class="progressbar" style="margin-top:7px"><div id="completionBar"></div></div>
@@ -155,32 +159,32 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
     <h2 style="margin-top:0">Strength details</h2>
     <div class="small" style="margin-bottom:10px">Enter the load used for each exercise above. For calorie estimation, also record roughly how long the strength portion took and how heavy it felt overall.</div>
     <div class="grid2">
-      <div><label>Strength duration (min)</label><input id="strengthMinutes" type="number" min="0" step="1" placeholder="e.g. 45" oninput="updateBurnEstimate()"></div>
-      <div><label>Weight heaviness</label><select id="strengthIntensity" onchange="updateBurnEstimate()"><option value="light">Light</option><option value="moderate" selected>Moderate</option><option value="heavy">Heavy</option></select></div>
+      <div><label>Strength duration (min)</label><input id="strengthMinutes" type="number" min="0" step="1" placeholder="e.g. 45" oninput="draftInput()"></div>
+      <div><label>Weight heaviness</label><select id="strengthIntensity" onchange="draftInput()"><option value="light">Light</option><option value="moderate" selected>Moderate</option><option value="heavy">Heavy</option></select></div>
     </div>
   </div>
   <div class="card">
     <h2 style="margin-top:0">Walk / Run</h2>
     <div class="small" style="margin-bottom:10px">Optional cardio before or after your strength workout.</div>
     <div class="grid2">
-      <div><label>Cardio type</label><select id="cardioType" onchange="updateBurnEstimate()"><option value="none">None</option><option value="walk">Walk</option><option value="run">Run</option></select></div>
-      <div><label>Duration (min)</label><input id="cardioMinutes" type="number" min="0" step="1" placeholder="e.g. 20" oninput="updateBurnEstimate()"></div>
+      <div><label>Cardio type</label><select id="cardioType" onchange="draftInput()"><option value="none">None</option><option value="walk">Walk</option><option value="run">Run</option></select></div>
+      <div><label>Duration (min)</label><input id="cardioMinutes" type="number" min="0" step="1" placeholder="e.g. 20" oninput="draftInput()"></div>
     </div>
     <div class="grid2" style="margin-top:10px">
-      <div><label>Speed (km/h)</label><input id="cardioSpeed" type="number" min="0" step="0.1" placeholder="e.g. 3.5" oninput="updateBurnEstimate()"></div>
-      <div><label>Incline (%)</label><input id="cardioIncline" type="number" min="0" step="0.5" placeholder="e.g. 10" oninput="updateBurnEstimate()"></div>
+      <div><label>Speed (km/h)</label><input id="cardioSpeed" type="number" min="0" step="0.1" placeholder="e.g. 3.5" oninput="draftInput()"></div>
+      <div><label>Incline (%)</label><input id="cardioIncline" type="number" min="0" step="0.5" placeholder="e.g. 10" oninput="draftInput()"></div>
     </div>
   </div>
   <div class="card">
     <div class="grid2">
-      <div><label>Workout effort (1–10)</label><input id="effort" type="number" min="1" max="10" placeholder="e.g. 7" oninput="updateBurnEstimate()"/></div>
-      <div><label>Body weight (optional, kg)</label><input id="weight" type="number" step="0.1" placeholder="e.g. 64.8" oninput="updateBurnEstimate()"/></div>
+      <div><label>Workout effort (1–10)</label><input id="effort" type="number" min="1" max="10" placeholder="e.g. 7" oninput="draftInput()"/></div>
+      <div><label>Body weight (optional, kg)</label><input id="weight" type="number" step="0.1" placeholder="e.g. 64.8" oninput="draftInput()"/></div>
     </div>
     <div class="goal-band" style="margin-top:12px">
       <div class="row between"><strong>Estimated calories burned</strong><strong id="burnEstimate">—</strong></div>
       <div id="burnEstimateDetail" class="small" style="margin-top:5px">Add duration/cardio details for an estimate.</div>
     </div>
-    <div style="margin-top:10px"><label>Notes</label><textarea id="notes" placeholder="Weights used, energy, anything you want to remember..."></textarea></div>
+    <div style="margin-top:10px"><label>Notes</label><textarea id="notes" placeholder="Weights used, energy, anything you want to remember..." oninput="saveWorkoutDraft()"></textarea></div>
     <button id="saveWorkoutBtn" style="width:100%;margin-top:12px" onclick="finishWorkout()">Finish & Save Workout</button>
   </div>
 </section>
@@ -189,38 +193,7 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
   <div class="card">
     <div class="row between">
       <h2 style="margin:0">Workout History</h2>
-      <button class="secondary" onclick="togglePastWorkoutForm()">+ Add Past Workout</button>
-    </div>
-    <div id="pastWorkoutForm" class="hidden" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--line)">
-      <div class="grid2">
-        <div><label>Date</label><input id="pastDate" type="date"></div>
-        <div><label>Workout</label>
-          <select id="pastWorkout" onchange="updatePastWorkoutDefaults()">
-            <option value="2">Lower Body A</option>
-            <option value="4">Upper Body</option>
-            <option value="6">Swimming</option>
-            <option value="0">Lower Body B</option>
-          </select>
-        </div>
-      </div>
-      <div class="grid2" style="margin-top:10px">
-        <div><label id="pastDoneLabel">Sets / laps completed</label><input id="pastDone" type="number" min="0"></div>
-        <div><label id="pastPlannedLabel">Sets / laps planned</label><input id="pastPlanned" type="number" min="1"></div>
-      </div>
-      <div id="pastDistanceWrap" class="hidden" style="margin-top:10px">
-        <label>Swimming distance</label>
-        <div id="pastDistance" class="status">0 laps = 0 m</div>
-      </div>
-      <div class="grid2" style="margin-top:10px">
-        <div><label>Workout effort (1–10, optional)</label><input id="pastEffort" type="number" min="1" max="10"></div>
-        <div><label>Body weight (optional, kg)</label><input id="pastWeight" type="number" step="0.1"></div>
-      </div>
-      <div style="margin-top:10px"><label>Notes</label><textarea id="pastNotes" placeholder="Anything you remember about this workout..."></textarea></div>
-      <div class="row wrap" style="margin-top:12px">
-        <button id="savePastBtn" onclick="savePastWorkout()">Save Past Workout</button>
-        <button class="secondary" onclick="togglePastWorkoutForm(false)">Cancel</button>
-      </div>
-      <div id="pastMessage" class="status hidden"></div>
+      <button class="secondary" onclick="openPastWorkout()">+ Log Past Workout</button>
     </div>
   </div>
   <div class="card"><div id="historyList"></div></div>
@@ -428,6 +401,7 @@ const PLAN = {
 const DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 let currentDay=new Date().getDay();
 let activeWorkoutDay=PLAN[currentDay]?currentDay:nextWorkoutDay();
+let selectedWorkoutDate=localDateString(new Date());
 let checked={};
 let currentUser=null;
 let cloudLogs=[];
@@ -515,20 +489,68 @@ async function handleSession(session){
   try{await Promise.all([loadCloudLogs(),loadMealLogs()]);}catch(e){alert("Could not load cloud data: "+e.message);}
 }
 
+function workoutProgressKey(date=selectedWorkoutDate,day=activeWorkoutDay){
+  return `workoutDraft:${currentUser?.id||"anonymous"}:${date}:${day}`;
+}
+function readWorkoutDraft(){
+  try{
+    const raw=localStorage.getItem(workoutProgressKey());
+    if(raw){const x=JSON.parse(raw);return x&&typeof x==="object"&&!Array.isArray(x)?x:{};}
+    const oldKey=`workoutProgress:${currentUser?.id||"anonymous"}:${selectedWorkoutDate}:${activeWorkoutDay}`,oldRaw=localStorage.getItem(oldKey);
+    if(oldRaw){const oldChecked=JSON.parse(oldRaw),draft={checked:oldChecked,values:{}};localStorage.setItem(workoutProgressKey(),JSON.stringify(draft));localStorage.removeItem(oldKey);return draft;}
+  }catch(e){}
+  return {};
+}
+function currentDraft(){
+  const values={};
+  ["strengthMinutes","strengthIntensity","cardioType","cardioMinutes","cardioSpeed","cardioIncline","effort","weight","notes"].forEach(id=>{const el=document.getElementById(id);if(el)values[id]=el.value;});
+  document.querySelectorAll(".exercise-load").forEach((el,i)=>values[`exerciseLoad-${i}`]=el.value);
+  return {checked:{...checked},values};
+}
+function saveWorkoutDraft(){try{localStorage.setItem(workoutProgressKey(),JSON.stringify(currentDraft()));}catch(e){}}
+function clearWorkoutProgress(){try{localStorage.removeItem(workoutProgressKey());}catch(e){}}
+function restoreDraftValues(draft){
+  Object.entries(draft.values||{}).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.value=value??"";});
+}
+function draftInput(){saveWorkoutDraft();updateBurnEstimate();}
+function changeWorkoutDate(value){
+  if(!value)return;
+  saveWorkoutDraft();selectedWorkoutDate=value;
+  const day=new Date(value+"T12:00:00").getDay();if(PLAN[day])activeWorkoutDay=day;
+  renderToday();
+}
+function changeWorkoutDay(value){saveWorkoutDraft();activeWorkoutDay=Number(value);renderToday();}
+function openPastWorkout(){
+  const d=new Date();d.setDate(d.getDate()-1);selectedWorkoutDate=localDateString(d);
+  const day=d.getDay();activeWorkoutDay=PLAN[day]?day:activeWorkoutDay;
+  openTabById("today");renderToday();
+}
 function renderToday(){
-  const p=PLAN[activeWorkoutDay];
-  document.getElementById("todayDay").textContent=DAYS[activeWorkoutDay];
+  const p=PLAN[activeWorkoutDay],today=localDateString(new Date()),draft=readWorkoutDraft();
+  checked=draft.checked&&typeof draft.checked==="object"?draft.checked:{};
+  const dateEl=document.getElementById("workoutDate");dateEl.value=selectedWorkoutDate;dateEl.max=today;
+  document.getElementById("workoutDaySelect").value=String(activeWorkoutDay);
+  document.getElementById("todayDay").textContent=DAYS[new Date(selectedWorkoutDate+"T12:00:00").getDay()];
   document.getElementById("todayTitle").textContent=p.name;
-  document.getElementById("todaySubtitle").textContent=(currentDay===activeWorkoutDay?"Today":"Next scheduled workout")+" · "+p.focus+(p.type==="swim"?" · 34 laps / 850 m":"");
-  checked={};let html="";
-  p.exercises.forEach((e,i)=>{const unit=p.type==="swim"?"laps":"sets";html+=`<div class="exercise"><h3>${e[0]}</h3><div class="meta">${e[1]} ${unit} · ${e[2]}</div>`;if(p.type==="strength")html+=`<div style="margin-top:9px"><label>Weight used (kg)</label><input id="exerciseLoad-${i}" class="exercise-load" type="number" min="0" step="0.5" placeholder="e.g. 30" oninput="updateBurnEstimate()"></div>`;html+=`<div class="sets" style="margin-top:10px">`;for(let s=1;s<=e[1];s++){const label=p.type==="swim"?`L${s}`:`S${s}`;html+=`<div class="set" id="set-${i}-${s}" onclick="toggleSet(${i},${s})">${label}</div>`;}html+="</div></div>";});
+  const when=selectedWorkoutDate===today?"Today":new Date(selectedWorkoutDate+"T12:00:00").toLocaleDateString();
+  document.getElementById("todaySubtitle").textContent=when+" · "+p.focus+(p.type==="swim"?" · 34 laps / 850 m":"");
+  let html="";
+  p.exercises.forEach((e,i)=>{const unit=p.type==="swim"?"laps":"sets";html+=`<div class="exercise"><h3>${e[0]}</h3><div class="meta">${e[1]} ${unit} · ${e[2]}</div>`;if(p.type==="strength")html+=`<div style="margin-top:9px"><label>Weight used (kg)</label><input id="exerciseLoad-${i}" class="exercise-load" type="number" min="0" step="0.5" placeholder="e.g. 30" oninput="draftInput()"></div>`;html+=`<div class="sets" style="margin-top:10px">`;for(let n=1;n<=e[1];n++){const label=p.type==="swim"?`L${n}`:`S${n}`;html+=`<div class="set" id="set-${i}-${n}" onclick="toggleSet(${i},${n})">${label}</div>`;}html+="</div></div>";});
   document.getElementById("exerciseList").innerHTML=html;
+  ["strengthMinutes","cardioMinutes","cardioSpeed","cardioIncline","effort","weight","notes"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
+  document.getElementById("strengthIntensity").value="moderate";document.getElementById("cardioType").value="none";
+  restoreDraftValues(draft);
+  Object.entries(checked).forEach(([key,isDone])=>{if(isDone)document.getElementById("set-"+key)?.classList.add("done");});
   document.getElementById("strengthDetailsCard").classList.toggle("hidden",p.type!=="strength");
   updateCompletion();updateBurnEstimate();
 }
-function toggleSet(i,s){const key=i+"-"+s;checked[key]=!checked[key];document.getElementById("set-"+i+"-"+s).classList.toggle("done",checked[key]);updateCompletion();}
+function toggleSet(i,s){
+  const key=i+"-"+s;checked[key]=!checked[key];
+  document.getElementById("set-"+i+"-"+s).classList.toggle("done",checked[key]);
+  saveWorkoutDraft();updateCompletion();
+}
 function updateCompletion(){const p=PLAN[activeWorkoutDay],total=p.exercises.reduce((a,e)=>a+e[1],0),done=Object.values(checked).filter(Boolean).length,pct=Math.round(done/total*100);document.getElementById("completionText").textContent=pct+"%";document.getElementById("completionBar").style.width=pct+"%";updateBurnEstimate();}
-function resetToday(){if(confirm("Clear today's checkmarks?"))renderToday();}
+function resetToday(){if(confirm("Clear this workout draft?")){clearWorkoutProgress();checked={};renderToday();}}
 
 function currentEstimateWeight(){
   const entered=Number(document.getElementById("weight")?.value);if(entered>0)return entered;
@@ -566,86 +588,15 @@ async function finishWorkout(){
   const p=PLAN[activeWorkoutDay],total=p.exercises.reduce((a,e)=>a+e[1],0),done=Object.values(checked).filter(Boolean).length;
   if(done===0&&!confirm("No sets/laps are checked. Save anyway?"))return;
   const burn=calculateBurn({day:activeWorkoutDay,weight:document.getElementById("weight").value,strengthMinutes:document.getElementById("strengthMinutes")?.value,strengthIntensity:document.getElementById("strengthIntensity")?.value,setsDone:done,cardioType:document.getElementById("cardioType").value,cardioMinutes:document.getElementById("cardioMinutes").value,cardioSpeed:document.getElementById("cardioSpeed").value,cardioIncline:document.getElementById("cardioIncline").value});
-  const log={id:Date.now(),date:new Date().toISOString(),scheduledDay:activeWorkoutDay,workout:p.name,focus:p.focus,setsDone:done,setsPlanned:total,completion:Math.round(done/total*100),effort:document.getElementById("effort").value||null,weight:document.getElementById("weight").value||null,notes:document.getElementById("notes").value.trim(),strengthMinutes:document.getElementById("strengthMinutes")?.value||null,strengthIntensity:document.getElementById("strengthIntensity")?.value||null,exerciseLoads:collectExerciseLoads(),cardioType:document.getElementById("cardioType").value,cardioMinutes:document.getElementById("cardioMinutes").value||null,cardioSpeed:document.getElementById("cardioSpeed").value||null,cardioIncline:document.getElementById("cardioIncline").value||null,estimatedCalories:burn.total||null};
+  const workoutDate=selectedWorkoutDate===localDateString(new Date())?new Date():new Date(selectedWorkoutDate+"T12:00:00");
+  const log={id:Date.now(),date:workoutDate.toISOString(),scheduledDay:activeWorkoutDay,workout:p.name,focus:p.focus,setsDone:done,setsPlanned:total,completion:Math.round(done/total*100),effort:document.getElementById("effort").value||null,weight:document.getElementById("weight").value||null,notes:document.getElementById("notes").value.trim(),strengthMinutes:document.getElementById("strengthMinutes")?.value||null,strengthIntensity:document.getElementById("strengthIntensity")?.value||null,exerciseLoads:collectExerciseLoads(),cardioType:document.getElementById("cardioType").value,cardioMinutes:document.getElementById("cardioMinutes").value||null,cardioSpeed:document.getElementById("cardioSpeed").value||null,cardioIncline:document.getElementById("cardioIncline").value||null,estimatedCalories:burn.total||null};
   const btn=document.getElementById("saveWorkoutBtn");btn.disabled=true;btn.textContent="Saving to cloud…";
   const {error}=await db.from("workout_logs").insert(appToDb(log));
   btn.disabled=false;btn.textContent="Finish & Save Workout";
   if(error){alert("Could not save workout: "+error.message);return;}
   document.getElementById("effort").value="";document.getElementById("weight").value="";document.getElementById("notes").value="";["strengthMinutes","cardioMinutes","cardioSpeed","cardioIncline"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});document.getElementById("cardioType").value="none";document.getElementById("strengthIntensity").value="moderate";
+  clearWorkoutProgress();
   await loadCloudLogs();renderToday();alert("Workout saved to cloud ✓");
-}
-
-
-function togglePastWorkoutForm(force){
-  const form=document.getElementById("pastWorkoutForm");
-  const shouldShow=typeof force==="boolean"?force:form.classList.contains("hidden");
-  form.classList.toggle("hidden",!shouldShow);
-  if(shouldShow){
-    if(!document.getElementById("pastDate").value){
-      const d=new Date(); d.setDate(d.getDate()-1);
-      document.getElementById("pastDate").value=d.toISOString().slice(0,10);
-    }
-    updatePastWorkoutDefaults();
-  }
-}
-function updatePastWorkoutDefaults(){
-  const day=Number(document.getElementById("pastWorkout").value);
-  const p=PLAN[day];
-  const total=p.exercises.reduce((a,e)=>a+e[1],0);
-  const done=document.getElementById("pastDone");
-  const planned=document.getElementById("pastPlanned");
-  if(!planned.value || planned.dataset.forDay!==String(day)){
-    planned.value=total; planned.dataset.forDay=String(day);
-  }
-  if(!done.value || done.dataset.forDay!==String(day)){
-    done.value=total; done.dataset.forDay=String(day);
-  }
-  const swim=p.type==="swim";
-  document.getElementById("pastDistanceWrap").classList.toggle("hidden",!swim);
-  document.getElementById("pastDoneLabel").textContent=swim?"Laps completed":"Sets completed";
-  document.getElementById("pastPlannedLabel").textContent=swim?"Laps planned":"Sets planned";
-  updatePastDistance();
-}
-function updatePastDistance(){
-  const day=Number(document.getElementById("pastWorkout").value);
-  if(PLAN[day].type!=="swim")return;
-  const laps=Number(document.getElementById("pastDone").value)||0;
-  document.getElementById("pastDistance").textContent=`${laps} laps = ${laps*25} m`;
-}
-document.addEventListener("input",e=>{if(e.target && e.target.id==="pastDone")updatePastDistance();});
-
-async function savePastWorkout(){
-  if(!currentUser){alert("Please sign in first.");return;}
-  const date=document.getElementById("pastDate").value;
-  const day=Number(document.getElementById("pastWorkout").value);
-  const p=PLAN[day];
-  const done=Number(document.getElementById("pastDone").value);
-  const planned=Number(document.getElementById("pastPlanned").value);
-  if(!date){setMessage("pastMessage","Choose the workout date.","error");document.getElementById("pastMessage").classList.remove("hidden");return;}
-  if(!Number.isFinite(done)||done<0||!Number.isFinite(planned)||planned<1){
-    setMessage("pastMessage","Enter valid completed and planned amounts.","error");document.getElementById("pastMessage").classList.remove("hidden");return;
-  }
-  const localNoon=new Date(date+"T12:00:00");
-  let notes=document.getElementById("pastNotes").value.trim();
-  if(p.type==="swim" && !notes.toLowerCase().includes("distance")){
-    notes=(notes?notes+" · ":"")+`Distance ${done*25}m (${done} laps)`;
-  }
-  const log={
-    id:Date.now(), date:localNoon.toISOString(), scheduledDay:day, workout:p.name, focus:p.focus,
-    setsDone:done, setsPlanned:planned, completion:Math.min(100,Math.round(done/planned*100)),
-    effort:document.getElementById("pastEffort").value||null,
-    weight:document.getElementById("pastWeight").value||null,
-    notes
-  };
-  const btn=document.getElementById("savePastBtn");btn.disabled=true;btn.textContent="Saving…";
-  const {error}=await db.from("workout_logs").insert(appToDb(log));
-  btn.disabled=false;btn.textContent="Save Past Workout";
-  document.getElementById("pastMessage").classList.remove("hidden");
-  if(error){setMessage("pastMessage","Could not save: "+error.message,"error");return;}
-  await loadCloudLogs();
-  setMessage("pastMessage","Past workout saved to cloud ✓","goodstatus");
-  ["pastEffort","pastWeight","pastNotes"].forEach(id=>document.getElementById(id).value="");
-  setTimeout(()=>togglePastWorkoutForm(false),700);
 }
 
 
@@ -1128,6 +1079,9 @@ async function migrateLocalWorkouts(){
 function exportData(){const blob=new Blob([JSON.stringify(storage(),null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="workout-tracker-cloud-backup.json";a.click();URL.revokeObjectURL(a.href);}
 function importData(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=async()=>{try{const x=JSON.parse(r.result);if(!Array.isArray(x))throw new Error("Backup must contain an array of workouts.");const rows=x.map(appToDb);const {error}=await db.from("workout_logs").upsert(rows,{onConflict:"id"});if(error)throw error;await loadCloudLogs();setMessage("dataMessage",`${rows.length} workout${rows.length===1?"":"s"} imported to cloud.`,"goodstatus");}catch(e){setMessage("dataMessage","Import failed: "+e.message,"error");}finally{ev.target.value="";}};r.readAsText(f);}
 function escapeHTML(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
+
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"&&currentUser)saveWorkoutDraft();});
+window.addEventListener("pagehide",()=>{if(currentUser)saveWorkoutDraft();});
 
 async function init(){
   const {data:{session}}=await db.auth.getSession();await handleSession(session);

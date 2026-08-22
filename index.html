@@ -15,7 +15,7 @@
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;background:var(--bg);color:var(--text);padding-bottom:calc(100px + env(safe-area-inset-bottom))}
 header{padding:calc(env(safe-area-inset-top) + 18px) 18px 14px;background:rgba(246,246,247,.94);position:sticky;top:0;z-index:10;backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{padding:16px;max-width:760px;margin:auto}.card{background:var(--card);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04);border:1px solid #eee}.row{display:flex;gap:10px;align-items:center}.between{justify-content:space-between}.wrap{flex-wrap:wrap}button,select,input{font:inherit}button{border:0;border-radius:12px;padding:11px 14px;background:var(--accent);color:white;font-weight:650;cursor:pointer}button.secondary{background:var(--soft);color:var(--text)}button.danger{background:#fff1f0;color:var(--bad)}button:disabled{opacity:.5;cursor:default}.tabs{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);border-top:1px solid var(--line);display:flex;padding:8px 10px calc(8px + env(safe-area-inset-bottom));backdrop-filter:blur(15px);z-index:20}.tab{flex:1;text-align:center;color:var(--muted);font-size:12px;padding:7px 2px;border-radius:12px}.tab.active{color:#000;background:#f0f0f2;font-weight:700}.hidden{display:none!important}.day-pill{display:inline-flex;padding:7px 10px;border-radius:999px;background:#f0f0f2;font-size:12px;font-weight:700}.exercise{padding:14px 0;border-top:1px solid var(--line)}.exercise:first-child{border-top:0}.exercise h3{margin:0 0 10px;font-size:16px}.meta{font-size:12px;color:var(--muted);margin-top:3px}.sets{display:flex;flex-wrap:wrap;gap:8px}.set{min-width:54px;height:44px;border-radius:12px;background:#f1f1f3;border:1px solid #e7e7e9;display:flex;align-items:center;justify-content:center;font-weight:700;color:#333;user-select:none;cursor:pointer}.set.done{background:#111;color:#fff;border-color:#111}.progressbar{height:10px;background:#ececef;border-radius:999px;overflow:hidden}.progressbar>div{height:100%;background:#111;width:0}.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.kpi{background:#f7f7f8;border-radius:14px;padding:14px}.kpi .n{font-size:24px;font-weight:800}.kpi .l{font-size:12px;color:var(--muted)}label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}input,select{width:100%;min-width:0;max-width:100%;padding:11px 12px;border:1px solid #ddd;border-radius:12px;background:#fff}.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}.log-item{padding:12px 0;border-top:1px solid var(--line)}.log-item:first-child{border-top:0}.badge{font-size:11px;padding:5px 8px;border-radius:999px;background:#f1f1f3}.good{color:var(--good);font-weight:700}.small{font-size:12px;color:var(--muted)}.chart{height:180px;display:flex;align-items:flex-end;gap:7px;padding-top:12px;border-bottom:1px solid var(--line)}.bar{flex:1;min-width:9px;background:#111;border-radius:7px 7px 0 0;position:relative}.bar span{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted)}.note{font-size:12px;color:var(--muted);line-height:1.45}textarea{width:100%;min-width:0;max-width:100%;min-height:75px;border:1px solid #ddd;border-radius:12px;padding:10px;font:inherit}.auth-shell{max-width:480px;margin:28px auto;padding:16px}.status{padding:10px 12px;border-radius:12px;background:#f7f7f8;font-size:12px;color:var(--muted);margin-top:10px}.status.error{background:#fff1f0;color:var(--bad)}.status.goodstatus{background:#edf7f0;color:var(--good)}.sync-pill{font-size:11px;padding:5px 8px;border-radius:999px;background:#edf7f0;color:var(--good);font-weight:700}.top-status{margin-top:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{padding:16px;max-width:760px;margin:auto}.card{background:var(--card);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04);border:1px solid #eee}.row{display:flex;gap:10px;align-items:center;min-width:0}.row>*{min-width:0}.between{justify-content:space-between}.wrap{flex-wrap:wrap}.row.wrap button{flex:1 1 140px;max-width:100%;white-space:normal;overflow-wrap:anywhere}button,select,input{font:inherit}button{border:0;border-radius:12px;padding:11px 14px;background:var(--accent);color:white;font-weight:650;cursor:pointer;max-width:100%;white-space:normal;line-height:1.2}button.secondary{background:var(--soft);color:var(--text)}button.danger{background:#fff1f0;color:var(--bad)}button:disabled{opacity:.5;cursor:default}.tabs{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);border-top:1px solid var(--line);display:flex;padding:8px 10px calc(8px + env(safe-area-inset-bottom));backdrop-filter:blur(15px);z-index:20}.tab{flex:1;text-align:center;color:var(--muted);font-size:12px;padding:7px 2px;border-radius:12px}.tab.active{color:#000;background:#f0f0f2;font-weight:700}.hidden{display:none!important}.day-pill{display:inline-flex;padding:7px 10px;border-radius:999px;background:#f0f0f2;font-size:12px;font-weight:700}.exercise{padding:14px 0;border-top:1px solid var(--line)}.exercise:first-child{border-top:0}.exercise h3{margin:0 0 10px;font-size:16px}.meta{font-size:12px;color:var(--muted);margin-top:3px}.sets{display:flex;flex-wrap:wrap;gap:8px}.set{min-width:54px;height:44px;border-radius:12px;background:#f1f1f3;border:1px solid #e7e7e9;display:flex;align-items:center;justify-content:center;font-weight:700;color:#333;user-select:none;cursor:pointer}.set.done{background:#111;color:#fff;border-color:#111}.progressbar{height:10px;background:#ececef;border-radius:999px;overflow:hidden}.progressbar>div{height:100%;background:#111;width:0}.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.kpi{background:#f7f7f8;border-radius:14px;padding:14px}.kpi .n{font-size:24px;font-weight:800}.kpi .l{font-size:12px;color:var(--muted)}label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}input,select{width:100%;min-width:0;max-width:100%;padding:11px 12px;border:1px solid #ddd;border-radius:12px;background:#fff}.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}.log-item{padding:12px 0;border-top:1px solid var(--line)}.log-item:first-child{border-top:0}.badge{font-size:11px;padding:5px 8px;border-radius:999px;background:#f1f1f3}.good{color:var(--good);font-weight:700}.small{font-size:12px;color:var(--muted)}.chart{height:180px;display:flex;align-items:flex-end;gap:7px;padding-top:12px;border-bottom:1px solid var(--line)}.bar{flex:1;min-width:9px;background:#111;border-radius:7px 7px 0 0;position:relative}.bar span{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted)}.note{font-size:12px;color:var(--muted);line-height:1.45}textarea{width:100%;min-width:0;max-width:100%;min-height:75px;border:1px solid #ddd;border-radius:12px;padding:10px;font:inherit}.auth-shell{max-width:480px;margin:28px auto;padding:16px}.status{padding:10px 12px;border-radius:12px;background:#f7f7f8;font-size:12px;color:var(--muted);margin-top:10px}.status.error{background:#fff1f0;color:var(--bad)}.status.goodstatus{background:#edf7f0;color:var(--good)}.sync-pill{font-size:11px;padding:5px 8px;border-radius:999px;background:#edf7f0;color:var(--good);font-weight:700}.top-status{margin-top:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .insight{padding:13px 14px;border:1px solid var(--line);border-radius:14px;margin-top:10px;background:#fafafa}
 .insight strong{display:block;margin-bottom:4px}
 .insight .signal{display:inline-block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:4px 7px;border-radius:999px;margin-bottom:6px}
@@ -53,7 +53,7 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
 .home-hero .subline{font-size:12px;opacity:.75;margin-top:6px}
 .home-action{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
 .home-action button{width:100%}.dual-metric{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.dual-metric .box{background:#f7f7f8;border-radius:14px;padding:14px}.dual-metric .v{font-size:24px;font-weight:800}.dual-metric .l{font-size:11px;color:var(--muted);margin-top:3px}.scatter-wrap{width:100%;overflow:hidden;margin-top:12px}.scatter-svg{width:100%;height:auto;display:block}.scatter-point{fill:#111;opacity:.85}.scatter-line{stroke:#777;stroke-width:2;stroke-dasharray:5 5}
-@media(max-width:430px){.home-grid{grid-template-columns:1fr 1fr}.home-kpi .value{font-size:24px}}
+@media(max-width:430px){.home-grid{grid-template-columns:1fr 1fr}.home-kpi .value{font-size:24px}.grid2{grid-template-columns:1fr}.row.wrap button{flex:1 1 100%}.card{padding:14px}.row.between{gap:8px}}
 
 .axis-text{font-size:9px;fill:#777}
 .chart-grid-line{stroke:#e6e6e8;stroke-width:1}
@@ -405,7 +405,7 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const PLAN = {
   2:{name:"Lower Body A",focus:"Glutes",type:"strength",exercises:[["Hip Thrust",4,"8–12"],["Romanian Deadlift",3,"8–12"],["Bulgarian Split Squat — Glute Bias",3,"8–10 each leg · long stride"],["Hip Abduction Machine",3,"15–20"],["Cable Glute Kickback",3,"12–15 each leg"],["Leg Curl",3,"10–15"]]},
   4:{name:"Upper Body",focus:"Back + Chest + Shoulders + Arms",type:"strength",exercises:[["Lat Pulldown",3,"8–12"],["Seated Cable Row",3,"8–12"],["Chest Press",3,"8–12"],["Shoulder Press",3,"8–12"],["Lateral Raises",3,"12–15"],["Triceps Pushdown",2,"10–15"],["Biceps Curl",2,"10–15"]]},
-  6:{name:"Swimming",focus:"Technique + Cardio",type:"swim",exercises:[["Freestyle",10,"1 lap = 25 m"],["Breaststroke",10,"1 lap = 25 m"],["Backstroke",10,"1 lap = 25 m"],["Cool-down",4,"1 lap = 25 m"]]},
+  6:{name:"Swimming",focus:"Technique + Cardio",type:"swim",exercises:[["Freestyle",10,"1 lap = 50 m"],["Breaststroke",10,"1 lap = 50 m"],["Backstroke",10,"1 lap = 50 m"],["Cool-down",4,"1 lap = 50 m"]]},
   0:{name:"Lower Body B",focus:"Glutes + Hamstrings",type:"strength",exercises:[["Hip Thrust / Glute Bridge",4,"8–12"],["Romanian Deadlift",3,"8–12"],["Leg Curl",3,"10–15"],["Reverse Lunge — Glute Bias",3,"8–10 each leg · long stride"],["Hip Abduction Machine",3,"15–20"],["Cable Glute Kickback",3,"12–15 each leg"]]}
 };
 const DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -518,7 +518,17 @@ function currentDraft(){
   document.querySelectorAll(".exercise-load").forEach((el,i)=>values[`exerciseLoad-${i}`]=el.value);
   return {checked:{...checked},values};
 }
-function saveWorkoutDraft(){try{localStorage.setItem(workoutProgressKey(),JSON.stringify(currentDraft()));}catch(e){}}
+function saveWorkoutDraft(){
+  try{
+    const draft=currentDraft();
+    draft.updatedAt=new Date().toISOString();
+    localStorage.setItem(workoutProgressKey(),JSON.stringify(draft));
+    return true;
+  }catch(e){
+    console.error("Could not save workout progress",e);
+    return false;
+  }
+}
 function clearWorkoutProgress(){try{localStorage.removeItem(workoutProgressKey());}catch(e){}}
 function restoreDraftValues(draft){
   Object.entries(draft.values||{}).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.value=value??"";});
@@ -570,7 +580,7 @@ function renderToday(){
   document.getElementById("todayDay").textContent=DAYS[new Date(selectedWorkoutDate+"T12:00:00").getDay()];
   document.getElementById("todayTitle").textContent=p.name;
   const when=selectedWorkoutDate===today?"Today":new Date(selectedWorkoutDate+"T12:00:00").toLocaleDateString();
-  document.getElementById("todaySubtitle").textContent=when+" · "+p.focus+(p.type==="swim"?" · 34 laps / 850 m":"");
+  document.getElementById("todaySubtitle").textContent=when+" · "+p.focus+(p.type==="swim"?" · 34 laps / 1,700 m":"");
   const status=document.getElementById("workoutEditStatus");
   status.innerHTML=saved?`<strong>Editing saved workout</strong> · changes will update the existing entry.`:`No saved workout for this date yet · saving will create one.`;
   const saveBtn=document.getElementById("saveWorkoutBtn");
@@ -586,9 +596,11 @@ function renderToday(){
   updateCompletion();updateBurnEstimate();
 }
 function toggleSet(i,s){
-  const key=i+"-"+s;checked[key]=!checked[key];
+  const key=i+"-"+s;
+  checked[key]=!checked[key];
   document.getElementById("set-"+i+"-"+s).classList.toggle("done",checked[key]);
-  saveWorkoutDraft();updateCompletion();
+  saveWorkoutDraft(); // persist immediately so closing the app does not lose this set
+  updateCompletion();
 }
 function updateCompletion(){const p=PLAN[activeWorkoutDay],total=p.exercises.reduce((a,e)=>a+e[1],0),done=Object.values(checked).filter(Boolean).length,pct=Math.round(done/total*100);document.getElementById("completionText").textContent=pct+"%";document.getElementById("completionBar").style.width=pct+"%";updateBurnEstimate();}
 function resetToday(){if(confirm("Clear this workout draft?")){clearWorkoutProgress();checked={};renderToday();}}
@@ -686,7 +698,7 @@ function updateEditDistance(){
   const day=Number(document.getElementById("editWorkout").value);
   if(PLAN[day].type!=="swim")return;
   const laps=Number(document.getElementById("editDone").value)||0;
-  document.getElementById("editDistance").textContent=`${laps} laps = ${laps*25} m`;
+  document.getElementById("editDistance").textContent=`${laps} laps = ${laps*50} m`;
 }
 document.addEventListener("input",e=>{if(e.target && e.target.id==="editDone")updateEditDistance();});
 

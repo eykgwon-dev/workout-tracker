@@ -285,7 +285,7 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
 
   <div class="card">
     <div class="row between">
-      <div><h2 style="margin:0">Calories — Last 7 Days</h2><div class="small" style="margin-top:4px">Daily intake vs your 1,750–1,850 kcal target band.</div></div>
+      <div><h2 style="margin:0">Calories — Last 7 Days</h2><div class="small" style="margin-top:4px">Daily intake vs your 1,800 kcal goal.</div></div>
     </div>
     <div id="calorieTrendChart" class="line-chart-wrap"></div>
     <div id="calorieChartCommentary" class="note" style="margin-top:10px"></div>
@@ -303,7 +303,7 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
     <h2 style="margin-top:0">Nutrition — Last 7 Days</h2>
     <div class="kpi-grid">
       <div class="kpi"><div id="kpiAvgCalories" class="n">—</div><div class="l">Avg logged kcal/day</div></div>
-      <div class="kpi"><div id="kpiCalorieHit" class="n">—</div><div class="l">Days in 1,750–1,850</div></div>
+      <div class="kpi"><div id="kpiCalorieHit" class="n">—</div><div class="l">Days near 1,800</div></div>
       <div class="kpi"><div id="kpiAvgProtein" class="n">—</div><div class="l">Avg protein/day</div></div>
       <div class="kpi"><div id="kpiProteinHit" class="n">—</div><div class="l">Days ≥100g protein</div></div>
     </div>
@@ -417,7 +417,7 @@ let checked={};
 let currentUser=null;
 let cloudLogs=[];
 let mealLogs=[];
-const CALORIE_MIN=1750, CALORIE_MAX=1850, CALORIE_TARGET=1800;
+const CALORIE_MIN=1800, CALORIE_MAX=1800, CALORIE_TARGET=1800;
 const PROTEIN_MIN=100, PROTEIN_MAX=115;
 
 function nextWorkoutDay(){for(let i=1;i<=7;i++){const d=(currentDay+i)%7;if(PLAN[d])return d;}}
@@ -809,7 +809,7 @@ function renderHome(){
   }
   if(t.rows.length && cal>CALORIE_MAX){
     focus="Bring calories back into range";
-    detail=`Today is ${cal} kcal versus your ${CALORIE_MIN}–${CALORIE_MAX} kcal target.`;
+    detail=`Today is ${cal} kcal versus your ${CALORIE_TARGET} kcal target.`;
   }
   if(weekLogs.length<2 && new Date().getDay()>=4){
     focus="Prioritise your next workout";
@@ -960,7 +960,7 @@ function renderSevenDayLineChart(elementId, daily, key, minTarget, maxTarget, yM
     <rect class="chart-target-band" x="${L}" y="${bandY}" width="${plotW}" height="${bandH}"></rect>
     ${grid}${paths}${labels}${values}
   </svg>
-  <div class="mini-legend"><span>Shaded band = target ${minTarget}–${maxTarget}${suffix}</span><span>Blank day = no food logged</span></div>`;
+  <div class="mini-legend"><span>Target = ${minTarget}${suffix}</span><span>Blank day = no food logged</span></div>`;
 }
 
 
@@ -1021,7 +1021,7 @@ function renderAnalysis(logs){
   renderSevenDayLineChart("calorieTrendChart",daily,"calories",CALORIE_MIN,CALORIE_MAX,2200,"");
   renderSevenDayLineChart("proteinTrendChart",daily,"protein",PROTEIN_MIN,PROTEIN_MAX,140,"g");
   document.getElementById("calorieChartCommentary").textContent=loggedDays.length
-    ? `${calHit}/${loggedDays.length} logged days were within 1,750–1,850 kcal. Average logged intake: ${avgCalories} kcal/day. ${loggedDays.length<7?"Because some days are missing, treat the average as incomplete rather than assuming those days were zero calories.":calHit>=5?"Calorie consistency looks strong this week.":"The chart should help show whether the issue is repeated overshooting, undershooting, or day-to-day volatility."}`
+    ? `${calHit}/${loggedDays.length} logged days were at the 1,800 kcal goal. Average logged intake: ${avgCalories} kcal/day. ${loggedDays.length<7?"Because some days are missing, treat the average as incomplete rather than assuming those days were zero calories.":calHit>=5?"Calorie consistency looks strong this week.":"The chart should help show whether the issue is repeated overshooting, undershooting, or day-to-day volatility."}`
     : "No nutrition data yet. Once you log food, this chart will show whether calorie consistency is a likely blocker.";
   document.getElementById("proteinChartCommentary").textContent=loggedDays.length
     ? `${proteinHit}/${loggedDays.length} logged days reached at least 100 g protein. Average: ${avgProtein} g/day. ${proteinHit>=5?"Protein consistency looks strong.":"Look for repeated low-protein days rather than focusing on one isolated day."}`
@@ -1057,7 +1057,7 @@ function renderAnalysis(logs){
     insights.push({
       score:100-calRate,
       html:insightHtml(calRate>=70?"good":calRate>=40?"warn":"bad","Calorie target adherence",
-        `${calHit}/${loggedDays.length} logged days landed in 1,750–1,850 kcal. Average logged intake was ${avgCalories} kcal/day. Treat unusually low totals as possible under-logging.`)
+        `${calHit}/${loggedDays.length} logged days landed at the 1,800 kcal goal. Average logged intake was ${avgCalories} kcal/day. Treat unusually low totals as possible under-logging.`)
     });
     const proRate=Math.round(proteinHit/loggedDays.length*100);
     insights.push({

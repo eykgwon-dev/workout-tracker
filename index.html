@@ -268,7 +268,7 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
     <h2 style="margin-top:0">Last 28 Days</h2>
     <div class="kpi-grid">
       <div class="kpi"><div id="kpiSessions" class="n">0</div><div class="l">Workout sessions</div></div>
-      <div class="kpi"><div id="kpiAdherence" class="n">0%</div><div class="l">Routine adherence</div></div>
+      <div class="kpi"><div id="kpiAdherence" class="n">0%</div><div class="l">Weekly adherence</div></div>
       <div class="kpi"><div id="kpiCompletion" class="n">0%</div><div class="l">Avg workout completion</div></div>
       <div class="kpi"><div id="kpiNutritionDays" class="n">0/7</div><div class="l">Nutrition days logged</div></div>
     </div>
@@ -325,7 +325,7 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
 
   <div class="card"><div class="row between"><div><h2 style="margin:0">Workout Calories</h2><div class="small" style="margin-top:4px">Estimated exercise energy expenditure from your logged sessions.</div></div><span class="badge">7 days</span></div><div class="dual-metric"><div class="box"><div id="burn7Total" class="v">—</div><div class="l">Estimated kcal burned</div></div><div class="box"><div id="burn7Avg" class="v">—</div><div class="l">Avg per workout</div></div></div><div id="burn7Note" class="note" style="margin-top:10px"></div></div>
 
-  <div class="card"><div class="row between"><h2 style="margin:0">Workout Frequency</h2><span class="small">sessions / target 4</span></div><div id="weeklyChart" class="chart"></div></div>
+  <div class="card"><div class="row between"><h2 style="margin:0">Workout Frequency</h2><span class="small">sessions / weekly target 4</span></div><div id="weeklyChart" class="chart"></div></div>
   <div class="card"><h2 style="margin-top:0">Strength Progress</h2><div class="small" style="margin-bottom:10px">Track the weight you use for each strength exercise. New workouts use the dedicated load fields; older note-based entries still work.</div><label>Exercise</label><select id="progressExercise" onchange="renderStrengthProgress()"></select><div id="strengthProgress" style="margin-top:14px"></div></div>
   <div class="card"><h2 style="margin-top:0">Weight Trend</h2><div id="weightTrend" class="small">Add body weight when saving workouts to see your trend here.</div></div>
 </section>
@@ -997,7 +997,26 @@ function renderCaloriesVsWeight(logs){
 function renderAnalysis(logs){
   const now=new Date(), cutoff28=daysAgo(27), cutoff7=localDateString(daysAgo(6));
   const recent=logs.filter(l=>new Date(l.date)>=cutoff28);
-  const sessions=recent.length, expected=16, adherence=Math.min(100,Math.round(sessions/expected*100));
+  const sessions=recent.length;
+
+  // Workout consistency is measured week-by-week rather than as one raw 28-day total.
+  // Each Monday-Sunday week has a 4-session target and is capped at 100%, so extra
+  // sessions in one week cannot compensate for a missed session in another week.
+  const currentWeekKey=weekKey(now);
+  const weekKeys=[];
+  for(let i=3;i>=0;i--){
+    const d=new Date(now);
+    d.setDate(d.getDate()-((d.getDay()+6)%7)-i*7);
+    weekKeys.push(weekKey(d));
+  }
+  const weeklyCounts=Object.fromEntries(weekKeys.map(k=>[k,0]));
+  logs.forEach(l=>{
+    const k=weekKey(l.date);
+    if(Object.prototype.hasOwnProperty.call(weeklyCounts,k)) weeklyCounts[k]++;
+  });
+  const weeklyScores=weekKeys.map(k=>Math.min(4,weeklyCounts[k])/4);
+  const adherence=Math.round(weeklyScores.reduce((a,v)=>a+v,0)/weeklyScores.length*100);
+  const currentWeekSessions=weeklyCounts[currentWeekKey]||0;
   const avgCompletion=recent.length?Math.round(recent.reduce((a,l)=>a+(Number(l.completion)||0),0)/recent.length):0;
 
   const last7Dates=[];for(let i=6;i>=0;i--)last7Dates.push(localDateString(daysAgo(i)));
@@ -1040,7 +1059,7 @@ function renderAnalysis(logs){
   insights.push({
     score:100-adherence,
     html:insightHtml(adherence>=75?"good":adherence>=50?"warn":"bad","Workout consistency",
-      `You logged ${sessions} of a target ${expected} sessions in the last 28 days (${adherence}%). ${sessions<expected?`${expected-sessions} sessions are missing versus a 4×/week routine.`:"You met or exceeded the routine target."}`)
+      `Weekly adherence averaged ${adherence}% across the last 4 weeks. Each week is scored against the 4-session target, capped at 100%, so extra sessions cannot make up for missed sessions in another week. This week: ${currentWeekSessions}/4 sessions so far.`)
   });
   insights.push({
     score:100-avgCompletion,

@@ -60,13 +60,6 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
 .chart-path{fill:none;stroke:#111;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 .chart-point{fill:#111}
 .chart-target-band{fill:#f0f0f2}
-.month-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.month-cell{background:#f7f7f8;border-radius:14px;padding:12px}
-.month-cell .v{font-size:20px;font-weight:800}
-.month-cell .l{font-size:10px;color:var(--muted);margin-top:3px}
-.period-pill{font-size:11px;padding:5px 8px;border-radius:999px;background:#f1f1f3;font-weight:700}
-@media(min-width:600px){.month-grid{grid-template-columns:repeat(4,1fr)}}
-
 
 @media (min-width:600px){.kpi-grid{grid-template-columns:repeat(4,1fr)}}
 </style>
@@ -269,45 +262,6 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
   <div class="card">
     <div class="row between"><div><h2 style="margin:0">Performance Dashboard</h2><div class="small" style="margin-top:4px">Your routine, nutrition and weight — analysed for gaps.</div></div><span class="badge">BI mode</span></div>
     <div id="mainBottleneck" class="insight" style="margin-top:14px"></div>
-  </div>
-
-  <div class="card">
-    <div class="row between wrap">
-      <div>
-        <h2 style="margin:0">Longitudinal BI</h2>
-        <div class="small" style="margin-top:4px">Compare your performance across months and years.</div>
-      </div>
-      <select id="analyticsPeriod" onchange="renderProgress()" style="width:auto;min-width:110px">
-        <option value="28">28 days</option>
-        <option value="90">3 months</option>
-        <option value="180">6 months</option>
-        <option value="ytd">YTD</option>
-        <option value="365" selected>1 year</option>
-        <option value="all">All time</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2 style="margin-top:0">Monthly Scorecard</h2>
-    <div id="monthlyScorecard" class="analytics-chart"></div>
-  </div>
-
-  <div class="card">
-    <h2 style="margin-top:0">Weight Trend</h2>
-    <div class="small">Long-term weight trajectory from your logged weigh-ins.</div>
-    <div id="longWeightTrend" class="line-chart-wrap"></div>
-  </div>
-
-  <div class="card">
-    <h2 style="margin-top:0">Training Volume by Month</h2>
-    <div class="small">Completed sets/laps, with strength loads where available.</div>
-    <div id="monthlyTrainingTrend" class="analytics-chart"></div>
-  </div>
-
-  <div class="card">
-    <h2 style="margin-top:0">Nutrition by Month</h2>
-    <div id="monthlyNutritionTrend" class="analytics-chart"></div>
   </div>
 
   <div class="card">
@@ -1175,97 +1129,6 @@ function renderWorkoutBurnStats(){
   document.getElementById("burn7Note").textContent=logs.length?`${logs.length} workout${logs.length===1?"":"s"} with calorie estimates in the last 7 days. These are planning estimates, not precise measurements.`:"New workouts with strength duration and/or walk/run details will populate this view.";
 }
 
-
-function analyticsCutoff(){
-  const sel=document.getElementById("analyticsPeriod");
-  const v=sel?.value||"365";
-  const now=new Date(); now.setHours(23,59,59,999);
-  if(v==="all")return null;
-  if(v==="ytd")return new Date(now.getFullYear(),0,1);
-  const d=new Date(now); d.setDate(d.getDate()-Number(v)+1); d.setHours(0,0,0,0); return d;
-}
-function monthKey(d){const x=new Date(d);return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,"0")}`;}
-function monthLabel(k){const [y,m]=k.split("-").map(Number);return new Date(y,m-1,1).toLocaleDateString(undefined,{month:"short",year:"2-digit"});}
-function monthsInRange(cutoff){
-  const now=new Date(), start=cutoff?new Date(cutoff):new Date(Math.min(
-    ...cloudLogs.map(l=>new Date(l.date).getTime()).filter(Number.isFinite),
-    ...mealLogs.map(m=>new Date(m.date+"T12:00:00").getTime()).filter(Number.isFinite),
-    now.getTime()
-  ));
-  start.setDate(1); start.setHours(0,0,0,0);
-  const out=[]; let d=new Date(start.getFullYear(),start.getMonth(),1);
-  const end=new Date(now.getFullYear(),now.getMonth(),1);
-  while(d<=end){out.push(monthKey(d));d.setMonth(d.getMonth()+1);}
-  return out.slice(-24);
-}
-function renderMonthlyBI(){
-  const cutoff=analyticsCutoff(), now=new Date();
-  const logs=cloudLogs.filter(l=>!cutoff||new Date(l.date)>=cutoff);
-  const meals=mealLogs.filter(m=>!cutoff||new Date(m.date+"T12:00:00")>=cutoff);
-  const months=monthsInRange(cutoff);
-  const stats=Object.fromEntries(months.map(k=>[k,{workouts:0,completion:[],calories:[],protein:[],nutritionDays:new Set(),swimLaps:0,strengthSets:0,weight:[]}]));
-  logs.forEach(l=>{
-    const k=monthKey(l.date); if(!stats[k])return;
-    const s=stats[k]; s.workouts++;
-    s.completion.push(Number(l.completion)||0);
-    if(Number(l.weight)>0)s.weight.push(Number(l.weight));
-    const p=PLAN[Number(l.scheduledDay)];
-    if(p?.type==="swim")s.swimLaps+=Number(l.setsDone)||0; else s.strengthSets+=Number(l.setsDone)||0;
-  });
-  meals.forEach(m=>{
-    const k=monthKey(m.date); if(!stats[k])return;
-    const s=stats[k]; s.nutritionDays.add(m.date);
-    const c=Number(m.calories); if(c>0)s.calories.push(c);
-    const p=Number(m.protein_g); if(p>0)s.protein.push(p);
-  });
-  const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
-  const el=document.getElementById("monthlyScorecard");
-  if(!el)return;
-  el.innerHTML=months.map(k=>{
-    const s=stats[k], cal=avg(s.calories), prot=avg(s.protein), comp=avg(s.completion);
-    const calHit=s.calories.filter(x=>x<=1800).length, protHit=s.protein.filter(x=>x>=100).length;
-    const calAd=s.calories.length?Math.round(calHit/s.calories.length*100):null;
-    const protAd=s.protein.length?Math.round(protHit/s.protein.length*100):null;
-    return `<div class="insight"><div class="row between"><strong>${monthLabel(k)}</strong><span class="period-pill">${s.workouts} workouts</span></div>
-      <div class="month-grid" style="margin-top:9px">
-        <div class="month-cell"><div class="v">${comp==null?"—":Math.round(comp)+"%"}</div><div class="l">completion</div></div>
-        <div class="month-cell"><div class="v">${cal==null?"—":Math.round(cal)}</div><div class="l">avg kcal/day</div></div>
-        <div class="month-cell"><div class="v">${prot==null?"—":Math.round(prot)+"g"}</div><div class="l">avg protein/day</div></div>
-        <div class="month-cell"><div class="v">${calAd==null?"—":calAd+"%"}</div><div class="l">≤1,800 kcal</div></div>
-        <div class="month-cell"><div class="v">${protAd==null?"—":protAd+"%"}</div><div class="l">≥100g protein</div></div>
-        <div class="month-cell"><div class="v">${s.strengthSets}</div><div class="l">strength sets</div></div>
-        <div class="month-cell"><div class="v">${s.swimLaps}</div><div class="l">swim laps</div></div>
-        <div class="month-cell"><div class="v">${s.nutritionDays.size}</div><div class="l">nutrition days</div></div>
-      </div></div>`;
-  }).join("");
-  renderLongWeightTrend(logs);
-  renderMonthlyTraining(stats,months);
-  renderMonthlyNutrition(stats,months);
-}
-function renderLongWeightTrend(logs){
-  const el=document.getElementById("longWeightTrend"); if(!el)return;
-  const pts=logs.filter(l=>Number(l.weight)>0).sort((a,b)=>new Date(a.date)-new Date(b.date));
-  if(pts.length<2){el.innerHTML='<div class="small">Log body weight on at least two workouts to show the long-term trend.</div>';return;}
-  const w=720,h=220,p=34, vals=pts.map(x=>Number(x.weight)),min=Math.min(...vals)-1,max=Math.max(...vals)+1;
-  const x=i=>p+(i/(pts.length-1))*(w-2*p), y=v=>h-p-((v-min)/(max-min))*(h-2*p);
-  const path=pts.map((pt,i)=>(i?"L":"M")+x(i).toFixed(1)+" "+y(Number(pt.weight)).toFixed(1)).join(" ");
-  const circles=pts.map((pt,i)=>`<circle class="chart-point" cx="${x(i)}" cy="${y(Number(pt.weight))}" r="3"><title>${new Date(pt.date).toLocaleDateString()}: ${Number(pt.weight).toFixed(1)} kg</title></circle>`).join("");
-  el.innerHTML=`<svg class="line-chart-svg" viewBox="0 0 ${w} ${h}" role="img"><line class="chart-grid-line" x1="${p}" y1="${y(min+1)}" x2="${w-p}" y2="${y(min+1)}"/><path class="chart-path" d="${path}"/>${circles}<text class="axis-text" x="${p}" y="${h-8}">${new Date(pts[0].date).toLocaleDateString(undefined,{month:"short",year:"numeric"})}</text><text class="axis-text" x="${w-p}" y="${h-8}" text-anchor="end">${new Date(pts.at(-1).date).toLocaleDateString(undefined,{month:"short",year:"numeric"})}</text><text class="axis-text" x="4" y="${y(vals[0])}">${vals[0].toFixed(1)}kg</text><text class="axis-text" x="4" y="${y(vals.at(-1))}">${vals.at(-1).toFixed(1)}kg</text></svg>`;
-}
-function renderMonthlyTraining(stats,months){
-  const el=document.getElementById("monthlyTrainingTrend"); if(!el)return;
-  const max=Math.max(1,...months.map(k=>stats[k].strengthSets+stats[k].swimLaps));
-  el.innerHTML=months.map(k=>{const s=stats[k],total=s.strengthSets+s.swimLaps,p=Math.round(total/max*100);
-    return `<div class="chart-row"><div class="chart-label">${monthLabel(k)}</div><div class="chart-track"><div class="chart-fill" style="width:${p}%"></div></div><div class="chart-value">${total}</div></div>`;
-  }).join("");
-}
-function renderMonthlyNutrition(stats,months){
-  const el=document.getElementById("monthlyNutritionTrend"); if(!el)return;
-  el.innerHTML=months.map(k=>{const s=stats[k],cal=s.calories.length?Math.round(s.calories.reduce((a,b)=>a+b,0)/s.calories.length):null,prot=s.protein.length?Math.round(s.protein.reduce((a,b)=>a+b,0)/s.protein.length):null;
-    return `<div class="insight"><div class="row between"><strong>${monthLabel(k)}</strong><span class="small">${s.nutritionDays.size} logged days</span></div><div class="metric-row"><span>Avg calories</span><strong>${cal==null?"—":cal+" kcal"}</strong></div><div class="metric-row"><span>Avg protein</span><strong>${prot==null?"—":prot+" g"}</strong></div></div>`;
-  }).join("");
-}
-
 function renderProgress(){
   const logs=storage();
   renderWorkoutBurnStats();
@@ -1276,7 +1139,6 @@ function renderProgress(){
   renderStrengthProgress();
   renderAnalysis(logs);
   renderCaloriesVsWeight(logs);
-  renderMonthlyBI();
 }
 function renderWeeklyChart(weeks){const c=document.getElementById("weeklyChart");c.innerHTML="";const now=new Date(),arr=[];for(let i=7;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i*7);arr.push(weekKey(d));}arr.forEach(k=>{const n=Math.min(4,weeks[k]||0),h=Math.max(4,n/4*150),b=document.createElement("div");b.className="bar";b.style.height=h+"px";b.innerHTML=`<span>${k.slice(5)}</span>`;b.title=n+" sessions";c.appendChild(b);});}
 function populateExerciseSelect(){const names=[...new Set(Object.values(PLAN).flatMap(p=>p.type==="strength"?p.exercises.map(e=>e[0]):[]))],s=document.getElementById("progressExercise"),old=s.value;s.innerHTML=names.map(n=>`<option>${n}</option>`).join("");if(names.includes(old))s.value=old;}

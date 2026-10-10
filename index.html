@@ -101,7 +101,7 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
   <div class="home-grid">
     <div class="home-kpi">
       <div id="homeCalories" class="value">0</div>
-      <div class="label">kcal / 1,700–1,900</div>
+      <div class="label">kcal / <1,800</div>
       <div class="home-progress"><div id="homeCaloriesBar" style="width:0%"></div></div>
     </div>
     <div class="home-kpi">
@@ -219,7 +219,7 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
     <div class="row between">
       <div>
         <h2 style="margin:0">Nutrition Log</h2>
-        <div class="small" style="margin-top:4px">Daily target: 1,700–1,900 kcal · 100–120 g protein</div>
+        <div class="small" style="margin-top:4px">Daily calorie limit: under 1,800 kcal · 100–120 g protein</div>
       </div>
     </div>
     <div class="goal-band">
@@ -289,10 +289,10 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
 
   <div class="card">
     <div class="row between">
-      <div><h2 style="margin:0">Calories — Last 7 Days</h2><div class="small" style="margin-top:4px">Daily intake vs your 1,700–1,900 kcal target range.</div></div>
+      <div><h2 style="margin:0">Calories — Last 7 Days</h2><div class="small" style="margin-top:4px">Daily intake vs your 1,800 kcal limit.</div></div>
     </div>
     <div id="calorieTrendChart" class="line-chart-wrap"></div>
-    <div id="calorieChartCommentary" class="note" style="margin-top:10px"></div><div class="note" style="margin-top:8px">Working range: 1,700–1,900 kcal. Use the upper end on higher-activity days; evaluate the 7-day average rather than treating 1,800 kcal as a hard cutoff.</div>
+    <div id="calorieChartCommentary" class="note" style="margin-top:10px"></div><div class="note" style="margin-top:8px">Calorie adherence is counted as logged intake under 1,800 kcal. Consistently eating too little is not the goal; use your energy, recovery and longer-term trends as context.</div>
   </div>
 
   <div class="card">
@@ -307,11 +307,11 @@ h1{font-size:25px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}main{pad
     <h2 style="margin-top:0">Nutrition — Last 7 Days</h2>
     <div class="kpi-grid">
       <div class="kpi"><div id="kpiAvgCalories" class="n">—</div><div class="l">Avg logged kcal/day</div></div>
-      <div class="kpi"><div id="kpiCalorieHit" class="n">—</div><div class="l">Days in range</div></div>
+      <div class="kpi"><div id="kpiCalorieHit" class="n">—</div><div class="l">Days under 1,800</div></div>
       <div class="kpi"><div id="kpiAvgProtein" class="n">—</div><div class="l">Avg protein/day</div></div>
       <div class="kpi"><div id="kpiProteinHit" class="n">—</div><div class="l">Days ≥100g protein</div></div>
     </div>
-    <div class="note" style="margin-top:10px">Calorie/protein analysis only uses days with food logged. Calorie range adherence means logged intake is between 1,700–1,900 kcal; higher-activity days can use the upper end. Protein adherence means 100–120 g.</div>
+    <div class="note" style="margin-top:10px">Calorie/protein analysis only uses days with food logged. Calorie adherence means logged intake is under 1,800 kcal; days under 1,700 kcal still count as meeting this limit, but avoid deliberately undereating. Protein adherence means at least 100 g.</div>
   </div>
 
   <div class="card">
@@ -421,7 +421,7 @@ let checked={};
 let currentUser=null;
 let cloudLogs=[];
 let mealLogs=[];
-const CALORIE_MIN=1700, CALORIE_MAX=1900, CALORIE_TARGET=1800;
+const CALORIE_MIN=0, CALORIE_MAX=1800, CALORIE_TARGET=1800;
 const PROTEIN_MIN=100, PROTEIN_MAX=120;
 
 function nextWorkoutDay(){for(let i=1;i<=7;i++){const d=(currentDay+i)%7;if(PLAN[d])return d;}}
@@ -629,10 +629,10 @@ function resetToday(){if(confirm("Clear this workout draft?")){clearWorkoutProgr
 function getActivityLevel(dateStr){
   const workouts=cloudLogs.filter(l=>localDateString(l.date)===dateStr);
   const maxSteps=Math.max(0,...workouts.map(l=>Number(l.steps)||0));
-  if(maxSteps>=10000) return {level:"high",label:"High activity",detail:"10k+ steps logged — use the upper end of your calorie range (+100–200 kcal flexibility)."};
-  if(workouts.length) return {level:"moderate",label:"Training day",detail:"Workout logged — 1,700–1,900 kcal is a reasonable working range."};
+  if(maxSteps>=10000) return {level:"high",label:"High activity",detail:"10k+ steps logged — pay attention to hunger, recovery and energy; the 1,800 kcal limit is a guide, not a reason to undereat."};
+  if(workouts.length) return {level:"moderate",label:"Training day",detail:"Workout logged — aim for adequate fuelling while keeping the 1,800 kcal limit in mind."};
   if(maxSteps>=7000) return {level:"moderate",label:"Moderate activity",detail:"7k+ steps logged — normal target range is appropriate."};
-  return {level:"lower",label:"Lower activity",detail:"Lower-activity day — aim nearer 1,700–1,800 kcal if comfortable."};
+  return {level:"lower",label:"Lower activity",detail:"Lower-activity day — prioritise adequate food and recovery while keeping the 1,800 kcal limit in mind."};
 }
 function updateActivityLevel(){
   const el=document.getElementById("activityLevel");
@@ -814,14 +814,14 @@ function renderHome(){
 
   let headline="On track";
   let subline="Keep the routine steady.";
-  const calGap=cal<CALORIE_MIN?CALORIE_MIN-cal:cal>CALORIE_MAX?cal-CALORIE_MAX:0;
+  const calGap=cal>=CALORIE_MAX?cal-CALORIE_MAX+1:0;
   const proGap=Math.max(0,PROTEIN_MIN-pro);
   if(!t.rows.length){
     headline="Log your first meal";
     subline="Today’s nutrition data is still empty.";
   } else if(cal>CALORIE_MAX){
     headline="Calories above target";
-    subline=`About ${cal-CALORIE_MAX} kcal above your 1,700–1,900 kcal working range today.`;
+    subline=`You are ${cal-CALORIE_MAX} kcal above the 1,800 kcal limit today.`;
   } else if(pro<PROTEIN_MIN){
     headline="Protein is the gap";
     subline=`About ${Math.ceil(proGap)} g to reach 100 g today.`;
@@ -840,8 +840,8 @@ function renderHome(){
     detail=`You are at ${pro} g today; aim for at least ${PROTEIN_MIN} g.`;
   }
   if(t.rows.length && cal>CALORIE_MAX){
-    focus="Bring calories toward your working range";
-    detail=`Today is ${cal} kcal; aim around 1,700–1,900 kcal, using the upper end on higher-activity days.`;
+    focus="Bring calories below the 1,800 kcal limit";
+    detail=`Today is ${cal} kcal; your adherence limit is under 1,800 kcal.`;
   }
   if(weekLogs.length<2 && new Date().getDay()>=4){
     focus="Prioritise your next workout";
@@ -936,7 +936,7 @@ function renderNutrition(){
   let status="No food logged yet today.";
   if(todayTotals.rows.length){
     const c=todayTotals.calories,p=todayTotals.protein;
-    const calStatus=c<CALORIE_MIN?`${CALORIE_MIN-c} kcal below the working range`:c>CALORIE_MAX?`${c-CALORIE_MAX} kcal above the working range`:"within your 1,700–1,900 kcal range";
+    const calStatus=c<CALORIE_MAX?`${Math.round(CALORIE_MAX-c)} kcal below the 1,800 kcal limit`:c===CALORIE_MAX?"at the 1,800 kcal limit":`${Math.round(c-CALORIE_MAX)} kcal above the 1,800 kcal limit`;
     const proteinStatus=p<PROTEIN_MIN?`${Math.ceil(PROTEIN_MIN-p)} g protein still to reach 100 g`:p<=PROTEIN_MAX?"protein in the 100–120 g target range":`${Math.round(p-PROTEIN_MAX)} g above the 120 g target`;
     const activity=getActivityLevel(today);
     status=`${calStatus} · ${proteinStatus} · ${activity.label}`;
@@ -1056,7 +1056,7 @@ function renderAnalysis(logs){
   const last7Dates=[];for(let i=6;i>=0;i--)last7Dates.push(localDateString(daysAgo(i)));
   const daily=last7Dates.map(d=>({date:d,...mealDayTotals(d)}));
   const loggedDays=daily.filter(d=>d.rows.length>0);
-  const calHit=loggedDays.filter(d=>d.calories>=CALORIE_MIN&&d.calories<=CALORIE_MAX).length;
+  const calHit=loggedDays.filter(d=>d.calories<CALORIE_MAX).length;
   const proteinHit=loggedDays.filter(d=>d.protein>=PROTEIN_MIN).length;
   const avgCalories=loggedDays.length?Math.round(loggedDays.reduce((a,d)=>a+d.calories,0)/loggedDays.length):null;
   const avgProtein=loggedDays.length?Math.round(loggedDays.reduce((a,d)=>a+d.protein,0)/loggedDays.length):null;
@@ -1076,7 +1076,7 @@ function renderAnalysis(logs){
   renderSevenDayLineChart("calorieTrendChart",daily,"calories",CALORIE_MIN,CALORIE_MAX,2200,"");
   renderSevenDayLineChart("proteinTrendChart",daily,"protein",PROTEIN_MIN,PROTEIN_MAX,140,"g");
   document.getElementById("calorieChartCommentary").textContent=loggedDays.length
-    ? `${calHit}/${loggedDays.length} logged days were within 1,700–1,900 kcal. Average logged intake: ${avgCalories} kcal/day. ${loggedDays.length<7?"Because some days are missing, treat the average as incomplete rather than assuming those days were zero calories.":calHit>=5?"Most logged days are in the working range.":"Focus on bringing the weekly average toward ~1,700–1,800 kcal while keeping protein high; higher-activity days can use the upper end."}`
+    ? `${calHit}/${loggedDays.length} logged days were under 1,800 kcal. Average logged intake: ${avgCalories} kcal/day. ${loggedDays.length<7?"Because some days are missing, treat the average as incomplete rather than assuming those days were zero calories.":calHit>=5?"Most logged days met the calorie limit.":"Look at patterns across the week; avoid deliberately undereating to meet the limit."}`
     : "No nutrition data yet. Once you log food, this chart will show whether calorie consistency is a likely blocker.";
   document.getElementById("proteinChartCommentary").textContent=loggedDays.length
     ? `${proteinHit}/${loggedDays.length} logged days reached at least 100 g protein. Average: ${avgProtein} g/day. ${proteinHit>=5?"Protein consistency looks strong.":"Look for repeated low-protein days rather than focusing on one isolated day."}`
